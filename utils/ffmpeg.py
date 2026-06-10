@@ -298,6 +298,7 @@ def run_ff(
 
         t_pat = re.compile(r"time=(\d+):(\d+):(\d+\.\d+)")
         start_time = time.time()
+        assert proc.stdout is not None
         for line in proc.stdout:
             if worker and worker.is_cancelled:
                 break
