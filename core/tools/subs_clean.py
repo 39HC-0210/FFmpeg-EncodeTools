@@ -105,9 +105,9 @@ def clean_subs(
     """
     ext = in_path.suffix.lower()
     if ext == '.ass':
-        lines = _read_ass(in_path)
+        lines = _read_ass(str(in_path))
     elif ext == '.srt':
-        lines = _read_srt(in_path)
+        lines = _read_srt(str(in_path))
     else:
         warn(f"不支持的字幕格式：{ext}")
         return
