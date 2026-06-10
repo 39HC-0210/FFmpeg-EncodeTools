@@ -7,15 +7,15 @@ from utils.ffmpeg import find_exe
 
 
 def check_vs(code: str) -> tuple[bool, str, str]:
-    """检查 VapourSynth 脚本语法与运行时合法性。
+    """检查 VapourSynth 脚本语法与运行时合法性
 
-    先通过 AST 解析检查语法，再通过 ``vspipe --info`` 运行时验证。
+    先通过 AST 解析检查语法，再通过 ``vspipe --info`` 运行时验证
 
     Args:
-        code: VapourSynth Python 脚本源代码。
+        code: VapourSynth Python 脚本源代码
 
     Returns:
-        (是否通过, 简短消息, 完整输出/错误详情) 三元组。
+        (是否通过, 简短消息, 完整输出/错误详情) 三元组
     """
     try:
         ast.parse(code)

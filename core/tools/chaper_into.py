@@ -12,17 +12,17 @@ def inject_chap(
     out_path: str | None = None,
     worker: Any = None,
 ) -> bool:
-    """将章节元数据注入视频文件。
+    """将章节元数据注入视频文件
 
     Args:
-        v_path: 视频文件路径。
-        times_ms: 各章节起始时间列表（毫秒）。
-        names: 各章节名称列表。
-        out_path: 输出文件路径，留空自动生成。
-        worker: Runner 实例，用于进度回调。
+        v_path: 视频文件路径
+        times_ms: 各章节起始时间列表（毫秒）
+        names: 各章节名称列表
+        out_path: 输出文件路径，留空自动生成
+        worker: Runner 实例，用于进度回调
 
     Returns:
-        True 表示注入成功。
+        True 表示注入成功
     """
     vp = Path(v_path)
     if not out_path:

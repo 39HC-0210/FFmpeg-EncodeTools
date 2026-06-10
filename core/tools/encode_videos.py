@@ -10,15 +10,15 @@ def _make_vf(
     sub_path: Path | None = None,
     font_path: Path | None = None,
 ) -> str | None:
-    """构建 FFmpeg -vf 滤镜参数。
+    """构建 FFmpeg -vf 滤镜参数
 
     Args:
-        scale: 缩放参数（如 "-2:1080"）。
-        sub_path: 字幕文件路径。
-        font_path: 字体目录路径。
+        scale: 缩放参数（如 "-2:1080"）
+        sub_path: 字幕文件路径
+        font_path: 字体目录路径
 
     Returns:
-        -vf 参数字符串，无滤镜时返回 None。
+        -vf 参数字符串，无滤镜时返回 None
     """
     parts = []
     if scale:
@@ -46,21 +46,21 @@ def encode(
     worker: Any = None,
     ext_params: dict[str, Any | None] = None,
 ) -> None:
-    """对视频文件执行 FFmpeg 编码压制。
+    """对视频文件执行 FFmpeg 编码压制
 
     Args:
-        vid_list: 待编码视频文件路径列表。
-        enc_name: 编码器内部名（如 "libx264"）。
-        crf: 恒定质量因子。
-        preset: 编码速度预设。
-        scale: 缩放滤镜参数。
-        pix_fmt: 像素格式。
-        sub_path: 烧入字幕文件路径。
-        font_path: 字幕字体目录。
-        aud_cfg: 音频编码配置字典。
-        out_dir: 输出目录或文件路径。
-        worker: Runner 实例，用于进度回调与取消。
-        ext_params: 高级编码参数字典。
+        vid_list: 待编码视频文件路径列表
+        enc_name: 编码器内部名（如 "libx264"）
+        crf: 恒定质量因子
+        preset: 编码速度预设
+        scale: 缩放滤镜参数
+        pix_fmt: 像素格式
+        sub_path: 烧入字幕文件路径
+        font_path: 字幕字体目录
+        aud_cfg: 音频编码配置字典
+        out_dir: 输出目录或文件路径
+        worker: Runner 实例，用于进度回调与取消
+        ext_params: 高级编码参数字典
     """
     ff = find_exe("ffmpeg") or "ffmpeg"
     total = len(vid_list)

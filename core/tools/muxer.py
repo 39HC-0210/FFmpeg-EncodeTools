@@ -14,19 +14,19 @@ def mux(
     names: list[str] | None = None,
     worker: Any = None,
 ) -> bool:
-    """简易混流封装（MP4Box 或 FFmpeg 模式）。
+    """简易混流封装（MP4Box 或 FFmpeg 模式）
 
     Args:
-        v_path: 视频文件路径。
-        a_path: 音频文件路径（可选）。
-        out_path: 输出路径，留空自动生成。
-        mode: 混流引擎，"mp4box" 或 "ffmpeg"。
-        times_ms: 章节时间列表（毫秒）。
-        names: 章节名称列表。
-        worker: Runner 实例。
+        v_path: 视频文件路径
+        a_path: 音频文件路径（可选）
+        out_path: 输出路径，留空自动生成
+        mode: 混流引擎，"mp4box" 或 "ffmpeg"
+        times_ms: 章节时间列表（毫秒）
+        names: 章节名称列表
+        worker: Runner 实例
 
     Returns:
-        True 表示混流成功。
+        True 表示混流成功
     """
     vp = Path(v_path)
     if not out_path:
@@ -78,21 +78,21 @@ def mux_ff(
     fmt: str = "mkv",
     worker: Any = None,
 ) -> bool:
-    """高级多轨道混流封装（FFmpeg）。
+    """高级多轨道混流封装（FFmpeg）
 
-    支持多源文件、多轨道、语言/标题元数据、MKV 字体附件。
+    支持多源文件、多轨道、语言/标题元数据、MKV 字体附件
 
     Args:
-        sources: 源文件路径列表。
-        tracks: 轨道信息列表，每项含 src_idx, st_idx, type, name, lang。
-        attachments: 字体附件文件路径列表（仅 MKV）。
-        chap_path: 章节 TXT 文件路径。
-        out_path: 输出路径。
-        fmt: 输出容器格式，"mkv" 或 "mp4"。
-        worker: Runner 实例。
+        sources: 源文件路径列表
+        tracks: 轨道信息列表，每项含 src_idx, st_idx, type, name, lang
+        attachments: 字体附件文件路径列表（仅 MKV）
+        chap_path: 章节 TXT 文件路径
+        out_path: 输出路径
+        fmt: 输出容器格式，"mkv" 或 "mp4"
+        worker: Runner 实例
 
     Returns:
-        True 表示混流成功。
+        True 表示混流成功
     """
     ff = find_exe("ffmpeg") or "ffmpeg"
     meta_f = None

@@ -18,13 +18,13 @@ PARAM_MAP = {
 
 
 def _find_vs(name: str) -> str:
-    """查找 VapourSynth 工具路径，优先配置搜索，再检查常见安装位置。
+    """查找 VapourSynth 工具路径，优先配置搜索，再检查常见安装位置
 
     Args:
-        name: 工具名（如 "vspipe", "x264", "x265"）。
+        name: 工具名（如 "vspipe", "x264", "x265"）
 
     Returns:
-        可执行文件路径，找不到则返回原始名称。
+        可执行文件路径，找不到则返回原始名称
     """
     p = find_exe(name)
     if p and os.path.isfile(p):
@@ -48,17 +48,17 @@ def run_vs_cli(
     enc_p: dict[str, Any],
     worker: Any = None,
 ) -> bool:
-    """使用 vspipe 管道直连 x264/x265 CLI 编码器。
+    """使用 vspipe 管道直连 x264/x265 CLI 编码器
 
     Args:
-        scr: VapourSynth 脚本文件路径。
-        out: 输出文件路径。
-        enc: 编码器名（"x264" 或 "x265"）。
-        enc_p: 编码参数字典。
-        worker: Runner 实例。
+        scr: VapourSynth 脚本文件路径
+        out: 输出文件路径
+        enc: 编码器名（"x264" 或 "x265"）
+        enc_p: 编码参数字典
+        worker: Runner 实例
 
     Returns:
-        True 表示编码成功。
+        True 表示编码成功
     """
     enc_exe = _find_vs(enc)
     vs_exe = _find_vs("vspipe")
@@ -146,17 +146,17 @@ def run_vs_ff(
     enc_p: dict[str, Any],
     worker: Any = None,
 ) -> bool:
-    """使用 vspipe 管道直连 FFmpeg 编码器。
+    """使用 vspipe 管道直连 FFmpeg 编码器
 
     Args:
-        scr: VapourSynth 脚本文件路径。
-        out: 输出文件路径。
-        enc: FFmpeg 编码器名（如 "libx264", "libx265"）。
-        enc_p: 编码参数字典。
-        worker: Runner 实例。
+        scr: VapourSynth 脚本文件路径
+        out: 输出文件路径
+        enc: FFmpeg 编码器名（如 "libx264", "libx265"）
+        enc_p: 编码参数字典
+        worker: Runner 实例
 
     Returns:
-        True 表示编码成功。
+        True 表示编码成功
     """
     ff = find_exe("ffmpeg") or "ffmpeg"
     vs_exe = _find_vs("vspipe")

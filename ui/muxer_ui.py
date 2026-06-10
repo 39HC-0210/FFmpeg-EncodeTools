@@ -411,7 +411,7 @@ class TrackCardWidget(QWidget):
 
 
 class MuxPage(BasePage):
-    """高级混流封装页面：多源文件、轨道选择、语言/名称元数据、MKV 字体附件。"""
+    """高级混流封装页面：多源文件、轨道选择、语言/名称元数据、MKV 字体附件"""
 
     def __init__(self) -> None:
         super().__init__("混流封装", "tab_mux", add_stretch=False)
@@ -795,10 +795,10 @@ class MuxPage(BasePage):
             self.out_edit.setText(str(Path(raw).with_suffix(suffix)))
 
     def get_job(self) -> tuple:
-        """收集混流任务参数。
+        """收集混流任务参数
 
         Returns:
-            (任务类型, 参数字典) 或 (None, 错误信息字符串)。
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
         """
         if not self._tracks:
             return None, "请添加至少一个包含轨道的源文件。"

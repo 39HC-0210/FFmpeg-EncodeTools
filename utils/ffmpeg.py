@@ -6,20 +6,20 @@ from config import SET_FILE
 
 
 def warn(msg: str) -> None:
-    """输出红色警告信息到控制台。"""
+    """输出红色警告信息到控制台"""
     print(f"\033[91m{msg}\033[0m")
 
 
 def info(msg: str) -> None:
-    """输出绿色提示信息到控制台。"""
+    """输出绿色提示信息到控制台"""
     print(f"\033[92m{msg}\033[0m")
 
 
 def load_cfg() -> dict[str, Any]:
-    """加载配置文件，对缺失的键补入默认值。
+    """加载配置文件，对缺失的键补入默认值
 
     Returns:
-        dict: 合并默认值后的配置字典。
+        dict: 合并默认值后的配置字典
     """
     cfg: dict[str, Any] = {}
     if SET_FILE.exists():
@@ -28,7 +28,7 @@ def load_cfg() -> dict[str, Any]:
                 cfg = json.load(f)
         except Exception:
             pass
-            
+
     defaults = {
         # 以下为默认配置，可以根据需要修改
         "ffmpeg_path": ".\\EncodeTools\\ffmpeg.exe",
@@ -57,17 +57,17 @@ def load_cfg() -> dict[str, Any]:
     return cfg
 
 def save_cfg(cfg: dict[str, Any]) -> None:
-    """将配置字典写入 JSON 配置文件。"""
+    """将配置字典写入 JSON 配置文件"""
     with open(SET_FILE, 'w', encoding='utf-8') as f:
         json.dump(cfg, f, indent=4, ensure_ascii=False)
 
 
 def set_cfg(key: str, val: Any) -> None:
-    """设置单个配置项并持久化。
+    """设置单个配置项并持久化
 
     Args:
-        key: 配置键名。
-        val: 配置值。
+        key: 配置键名
+        val: 配置值
     """
     cfg = load_cfg()
     cfg[key] = val
@@ -75,14 +75,14 @@ def set_cfg(key: str, val: Any) -> None:
 
 
 def bind_cfg(widget: Any, key: str, default_val: Any) -> None:
-    """将 GUI 控件与配置文件单项双向绑定。
+    """将 GUI 控件与配置文件单项双向绑定
 
-    控件值变化时自动写回配置；初始化时从配置读取值设置到控件。
+    控件值变化时自动写回配置；初始化时从配置读取值设置到控件
 
     Args:
-        widget: qfluentwidgets 输入控件（ComboBox/SpinBox/DoubleSpinBox/CheckBox）。
-        key: 配置键名。
-        default_val: 配置不存在时的回退值。
+        widget: qfluentwidgets 输入控件（ComboBox/SpinBox/DoubleSpinBox/CheckBox）
+        key: 配置键名
+        default_val: 配置不存在时的回退值
     """
     from qfluentwidgets import ComboBox, SpinBox, DoubleSpinBox, CheckBox
     cfg = load_cfg()
@@ -107,7 +107,7 @@ def bind_cfg(widget: Any, key: str, default_val: Any) -> None:
         widget.toggled.connect(lambda c: set_cfg(key, c))
 
 def _resolve_path(path_str: str) -> str | None:
-    """解析相对或绝对路径，返回存在的文件路径或 None。"""
+    """解析相对或绝对路径，返回存在的文件路径或 None"""
     if not path_str:
         return None
     if path_str.startswith(".\\") or path_str.startswith("./"):
@@ -121,22 +121,22 @@ def _resolve_path(path_str: str) -> str | None:
 
 
 def find_exe(name: str) -> str | None:
-    """查找可执行文件路径。
+    """查找可执行文件路径
 
-    优先级：配置文件路径 > FFmpeg 同目录推导 > 系统 PATH。
+    优先级：配置文件路径 > FFmpeg 同目录推导 > 系统 PATH
 
     Args:
-        name: 工具名（如 "ffmpeg", "ffprobe", "x264", "x265"）。
+        name: 工具名（如 "ffmpeg", "ffprobe", "x264", "x265"）
 
     Returns:
-        可执行文件路径，找不到返回 None。
+        可执行文件路径，找不到返回 None
     """
     cfg = load_cfg()
     path = cfg.get(f"{name}_path", "").strip()
     res = _resolve_path(path)
     if res:
         return res
-        
+
     if name == "ffprobe":
         ffmpeg_path = _resolve_path(cfg.get("ffmpeg_path", "").strip()) or shutil.which("ffmpeg")
         if ffmpeg_path:
@@ -153,17 +153,17 @@ def find_exe(name: str) -> str | None:
     return shutil.which(name)
 
 def uniq_out(out_dir: Path, base_name: str, ext: str) -> Path:
-    """生成不重复的输出文件路径。
+    """生成不重复的输出文件路径
 
-    首次生成 `{base_name}_output{ext}`，冲突时追加 `~1`, `~2` …。
+    首次生成 `{base_name}_output{ext}`，冲突时追加 `~1`, `~2` …
 
     Args:
-        out_dir: 输出目录。
-        base_name: 基础文件名（不含扩展名）。
-        ext: 文件扩展名（含点号）。
+        out_dir: 输出目录
+        base_name: 基础文件名（不含扩展名）
+        ext: 文件扩展名（含点号）
 
     Returns:
-        不冲突的输出文件 Path。
+        不冲突的输出文件 Path
     """
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -176,29 +176,29 @@ def uniq_out(out_dir: Path, base_name: str, ext: str) -> Path:
         n += 1
 
 def fmt_dur(sec: float) -> str:
-    """将秒数格式化为 HH:MM:SS.mmm 时间字符串。
+    """将秒数格式化为 HH:MM:SS.mmm 时间字符串
 
     Args:
-        sec: 秒数（可带小数）。
+        sec: 秒数（可带小数）
 
     Returns:
-        格式为 ``00:00:00.000`` 的时间字符串。
+        格式为 ``00:00:00.000`` 的时间字符串
     """
     h, m, s = int(sec // 3600), int((sec % 3600) // 60), int(sec % 60)
     ms = int((sec - int(sec)) * 1000)
     return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
 
-def read_txt(path: Path) -> tuple[str, list[str]]:
-    """尝试多种编码读取文本文件。
+def read_txt(path: str) -> tuple[str, list[str]]:
+    """尝试多种编码读取文本文件
 
     Args:
-        path: 文件路径。
+        path: 文件路径
 
     Returns:
-        (完整文本内容, 按行分割的列表)。
+        (完整文本内容, 按行分割的列表)
 
     Raises:
-        ValueError: 所有编码均失败。
+        ValueError: 所有编码均失败
     """
     for enc in ['utf-8-sig', 'utf-8', 'gbk', 'ansi']:
         try:
@@ -210,15 +210,15 @@ def read_txt(path: Path) -> tuple[str, list[str]]:
     raise ValueError(f"无法识别文件编码：{path}")
 
 def get_vinfo(vpath: Path, save_json: bool = False) -> dict[str, Any]:
-    """调用 ffprobe 获取视频信息。
+    """调用 ffprobe 获取视频信息
 
     Args:
-        vpath: 视频文件路径。
-        save_json: 是否将原始 ffprobe JSON 保存到配置文件目录。
+        vpath: 视频文件路径
+        save_json: 是否将原始 ffprobe JSON 保存到配置文件目录
 
     Returns:
         包含 ``dur_ms``, ``cspace``, ``crange`` 键的字典；
-        若 ``save_json=True`` 还会包含 ``raw_json`` 键指向 JSON 文件路径。
+        若 ``save_json=True`` 还会包含 ``raw_json`` 键指向 JSON 文件路径
     """
     if not isinstance(vpath, Path):
         vpath = Path(vpath)
@@ -255,13 +255,13 @@ def get_vinfo(vpath: Path, save_json: bool = False) -> dict[str, Any]:
         return {'dur_ms': None, 'cspace': None, 'crange': None, 'raw_json': None}
 
 def get_vdur(vpath: Path) -> int | None:
-    """获取视频时长（毫秒）。
+    """获取视频时长（毫秒）
 
     Args:
-        vpath: 视频文件路径。
+        vpath: 视频文件路径
 
     Returns:
-        时长毫秒数，失败返回 None。
+        时长毫秒数，失败返回 None
     """
     return get_vinfo(vpath).get('dur_ms')
 
@@ -274,18 +274,18 @@ def run_ff(
     log_cb: Callable[..., None] | None = None,
     status_prefix: str = "",
 ) -> bool:
-    """执行 FFmpeg 命令并实时解析进度。
+    """执行 FFmpeg 命令并实时解析进度
 
     Args:
-        cmd_list: FFmpeg 命令行参数列表。
-        desc: 任务描述，用于日志前缀。
-        dur_ms: 视频总时长（毫秒），为 0 时不计算进度百分比。
-        worker: Runner 实例，用于取消/暂停控制。
-        log_cb: 日志回调函数，签名为 ``(line: str, pct: int, status_desc: str | None)``。
-        status_prefix: 进度状态行前缀。
+        cmd_list: FFmpeg 命令行参数列表
+        desc: 任务描述，用于日志前缀
+        dur_ms: 视频总时长（毫秒），为 0 时不计算进度百分比
+        worker: Runner 实例，用于取消/暂停控制
+        log_cb: 日志回调函数，签名为 ``(line: str, pct: int, status_desc: str | None)``
+        status_prefix: 进度状态行前缀
 
     Returns:
-        True 表示 FFmpeg 正常退出（返回码 0），False 表示失败或被取消。
+        True 表示 FFmpeg 正常退出（返回码 0），False 表示失败或被取消
     """
     info(f"\n正在{desc}：")
     c_flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
@@ -312,12 +312,12 @@ def run_ff(
                     h, mi, s = m.groups()
                     cur = (int(h) * 3600 + int(mi) * 60 + float(s)) * 1000
                     pct = min(100, int((cur / dur_ms) * 100))
-                    
+
                     fps_match = re.search(r"fps=\s*([\d\.]+)", line)
                     speed_match = re.search(r"speed=\s*([\d\.]+)x", line)
                     fps_val = fps_match.group(1) if fps_match else None
                     speed_val = speed_match.group(1) if speed_match else None
-                    
+
                     elapsed = time.time() - start_time
                     eta_str = ""
                     if pct > 0:
@@ -330,7 +330,7 @@ def run_ff(
                             eta_str = f"{h_eta:02d}:{m_eta:02d}:{s_eta:02d}"
                         else:
                             eta_str = f"{m_eta:02d}:{s_eta:02d}"
-                    
+
                     metrics = []
                     if fps_val:
                         metrics.append(f"帧率: {fps_val} fps")
@@ -338,7 +338,7 @@ def run_ff(
                         metrics.append(f"速度: {speed_val}x")
                     if eta_str:
                         metrics.append(f"剩余时间: {eta_str}")
-                    
+
                     metric_str = " | ".join(metrics)
                     prefix = status_prefix if status_prefix else desc
                     if metric_str:

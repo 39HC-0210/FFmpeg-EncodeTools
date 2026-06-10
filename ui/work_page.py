@@ -12,7 +12,7 @@ from ui.theme import polish_theme_widgets
 
 
 class TaskCard(CardWidget):
-    """队列中的单个任务卡片，展示进度、状态和控制按钮。"""
+    """队列中的单个任务卡片，展示进度、状态和控制按钮"""
 
     rm = Signal(str)
     up = Signal(str)
@@ -118,7 +118,7 @@ class TaskCard(CardWidget):
 
 
 class QueuePage(QWidget):
-    """任务队列页面：展示所有排队/运行中/已完成的任务卡片，支持并发控制和排序。"""
+    """任务队列页面：展示所有排队/运行中/已完成的任务卡片，支持并发控制和排序"""
 
     def __init__(self, q: JobQ | None = None, parent: QWidget | None = None) -> None:
         super().__init__(parent)

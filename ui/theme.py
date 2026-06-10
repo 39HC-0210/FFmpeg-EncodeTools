@@ -344,7 +344,7 @@ PushButton#btnGo:pressed {{
 
 
 def apply_theme_styles(widget: QWidget) -> None:
-    """将当前主题的 QSS 样式和调色板应用到窗口及其子控件。"""
+    """将当前主题的 QSS 样式和调色板应用到窗口及其子控件"""
     widget.setStyleSheet(DARK_QSS if isDarkTheme() else LIGHT_QSS)
     app = QApplication.instance()
     if app:
@@ -353,7 +353,7 @@ def apply_theme_styles(widget: QWidget) -> None:
 
 
 def polish_theme_widgets(widget: QWidget) -> None:
-    """确保所有 QLabel 子控件背景透明，避免主题切换时出现白底。"""
+    """确保所有 QLabel 子控件背景透明，避免主题切换时出现白底"""
     labels: list[QLabel] = []
     if isinstance(widget, QLabel):
         labels.append(widget)
@@ -369,7 +369,7 @@ def polish_theme_widgets(widget: QWidget) -> None:
 
 
 def dialog_card_style() -> str:
-    """返回弹窗内卡片组件的 QSS 样式。"""
+    """返回弹窗内卡片组件的 QSS 样式"""
     bg = DARK_SURFACE if isDarkTheme() else LIGHT_SURFACE
     border = DARK_BORDER_SOFT if isDarkTheme() else LIGHT_BORDER
     return (
@@ -382,18 +382,18 @@ def dialog_card_style() -> str:
 
 
 def dialog_style() -> str:
-    """返回弹窗的整体 QSS 样式。"""
+    """返回弹窗的整体 QSS 样式"""
     qss = DARK_QSS if isDarkTheme() else LIGHT_QSS
     return "QDialog { background: transparent; }\n" + qss
 
 
 def valid_text_color() -> str:
-    """返回当前主题下"有效"文本的颜色（深色主题白，浅色主题黑）。"""
+    """返回当前主题下"有效"文本的颜色（深色主题白，浅色主题黑）"""
     return DARK_TEXT if isDarkTheme() else "#000000"
 
 
 def _palette() -> QPalette:
-    """构建当前主题的 QPalette 调色板。"""
+    """构建当前主题的 QPalette 调色板"""
     pal = QPalette()
     if isDarkTheme():
         pal.setColor(QPalette.ColorRole.Window, QColor(DARK_BG))

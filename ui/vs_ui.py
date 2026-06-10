@@ -27,7 +27,7 @@ from utils import load_cfg, save_cfg
 
 
 class VSPage(QWidget):
-    """VapourSynth 压制页面：脚本编辑、语法检查、编码器配置、预设管理。"""
+    """VapourSynth 压制页面：脚本编辑、语法检查、编码器配置、预设管理"""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -334,10 +334,10 @@ class VSPage(QWidget):
             return None
 
     def get_job(self) -> tuple:
-        """收集 VS 压制任务参数。
+        """收集 VS 压制任务参数
 
         Returns:
-            (任务类型, 参数字典) 或 (None, 错误信息字符串)。
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
         """
         code = self.ed.toPlainText().strip()
         if not code:

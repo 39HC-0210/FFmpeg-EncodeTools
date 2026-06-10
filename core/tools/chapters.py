@@ -3,14 +3,14 @@ from pathlib import Path
 from utils import read_txt, warn
 
 
-def read_chap(chap_path: Path) -> tuple[list[int], list[str]]:
-    """解析 FFmpeg CHAPTER 格式的章节 TXT 文件。
+def read_chap(chap_path: str) -> tuple[list[int], list[str]]:
+    """解析 FFmpeg CHAPTER 格式的章节 TXT 文件
 
     Args:
-        chap_path: 章节文件路径。
+        chap_path: 章节文件路径
 
     Returns:
-        (时间列表（毫秒）, 名称列表) 的元组。
+        (时间列表（毫秒）, 名称列表) 的元组
     """
     times: list[int] = []
     names: list[str] = []
@@ -57,13 +57,13 @@ def make_meta(
     meta_path: Path,
     total_ms: int | None = None,
 ) -> None:
-    """生成 FFmpeg FFMETADATA1 格式的章节元数据文件。
+    """生成 FFmpeg FFMETADATA1 格式的章节元数据文件
 
     Args:
-        times_ms: 各章节起始时间（毫秒）。
-        names: 各章节名称。
-        meta_path: 输出元数据文件路径。
-        total_ms: 视频总时长（毫秒），用于最后一章的结束时间。
+        times_ms: 各章节起始时间（毫秒）
+        names: 各章节名称
+        meta_path: 输出元数据文件路径
+        total_ms: 视频总时长（毫秒），用于最后一章的结束时间
     """
     if total_ms is None:
         total_ms = 999999999

@@ -17,7 +17,7 @@ QUEUE_FILE = CFG_DIR / "task_queue.json"
 
 
 class JobState(Enum):
-    """任务状态枚举。"""
+    """任务状态枚举"""
     WAIT = "pending"
     RUN = "running"
     PAUSE = "paused"
@@ -31,14 +31,14 @@ class JobState(Enum):
 
     @property
     def text(self) -> str:
-        """返回状态的中文显示文本。"""
+        """返回状态的中文显示文本"""
         m = {"pending": "等待中", "running": "进行中", "paused": "已暂停", "done": "已完成", "failed": "失败", "cancelled": "已取消"}
         return m.get(self.value, self.value)
 
 
 @dataclass
 class Job:
-    """任务数据类，支持 JSON 序列化/反序列化。"""
+    """任务数据类，支持 JSON 序列化/反序列化"""
     id: str = field(default_factory=lambda: str(uuid4())[:8])
     jtype: str = ""
     name: str = ""
@@ -51,13 +51,13 @@ class Job:
     done_at: str = ""
 
     def to_dict(self) -> dict[str, Any]:
-        """序列化为字典（用于 JSON 持久化）。"""
+        """序列化为字典（用于 JSON 持久化）"""
         return {"id": self.id, "task_type": self.jtype, "display_name": self.name,
                 "params": self.params, "status": self.state.value, "created_at": self.made_at}
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Job":
-        """从字典反序列化为 Job 实例。"""
+        """从字典反序列化为 Job 实例"""
         try:
             st = JobState(d.get("status", "pending"))
         except ValueError:
@@ -68,14 +68,14 @@ class Job:
 
     @staticmethod
     def type_name(jtype: str) -> str:
-        """返回任务类型的中文显示名。"""
+        """返回任务类型的中文显示名"""
         m = {"encode": "视频压制", "mux": "混流封装", "mux_ff": "混流封装", "fast_mux": "MP4快速封装",
              "clean": "字幕清洗", "chapter": "章节封装", "vs": "VapourSynth压制"}
         return m.get(jtype, jtype)
 
 
 def suspend_process(pid: int) -> None:
-    """通过 Windows API 挂起进程（仅 Windows）。"""
+    """通过 Windows API 挂起进程（仅 Windows）"""
     try:
         handle = ctypes.windll.kernel32.OpenProcess(0x0800, False, pid)
         if handle:
@@ -86,7 +86,7 @@ def suspend_process(pid: int) -> None:
 
 
 def resume_process(pid: int) -> None:
-    """通过 Windows API 恢复挂起的进程（仅 Windows）。"""
+    """通过 Windows API 恢复挂起的进程（仅 Windows）"""
     try:
         handle = ctypes.windll.kernel32.OpenProcess(0x0800, False, pid)
         if handle:
@@ -97,7 +97,7 @@ def resume_process(pid: int) -> None:
 
 
 class RunnerSig(QObject):
-    """Runner 的信号集合。"""
+    """Runner 的信号集合"""
     log = Signal(str)
     done = Signal()
     err = Signal(str)
@@ -105,10 +105,10 @@ class RunnerSig(QObject):
 
 
 class Runner(QThread):
-    """任务执行线程。
+    """任务执行线程
 
-    根据 jtype 分发到不同的编码/混流/清洗/章节/VS 函数。
-    支持暂停、恢复、取消操作。
+    根据 jtype 分发到不同的编码/混流/清洗/章节/VS 函数
+    支持暂停、恢复、取消操作
     """
 
     def __init__(self, jtype: str, params: dict[str, Any]):
@@ -122,7 +122,7 @@ class Runner(QThread):
 
     @property
     def process(self) -> subprocess.Popen | None:
-        """当前关联的子进程（取第一个）。"""
+        """当前关联的子进程（取第一个）"""
         return self.processes[0] if self.processes else None
 
     @process.setter
@@ -137,21 +137,21 @@ class Runner(QThread):
         return self.cancelled
 
     def pause(self) -> None:
-        """暂停任务（挂起关联的子进程）。"""
+        """暂停任务（挂起关联的子进程）"""
         self.paused = True
         if os.name == "nt":
             for p in self.processes:
                 suspend_process(p.pid)
 
     def goon(self) -> None:
-        """恢复暂停的任务。"""
+        """恢复暂停的任务"""
         self.paused = False
         if os.name == "nt":
             for p in self.processes:
                 resume_process(p.pid)
 
     def stop(self) -> None:
-        """取消任务并终止关联子进程。"""
+        """取消任务并终止关联子进程"""
         self.cancelled = True
         self.paused = False
         if os.name == "nt":
@@ -164,14 +164,14 @@ class Runner(QThread):
                 pass
 
     def log(self, line: str, pct: int, status_desc: str | None = None) -> None:
-        """发出日志和进度信号。"""
+        """发出日志和进度信号"""
         if pct >= 0:
             desc = status_desc if status_desc else line
             self.sig.prog.emit(pct, desc)
         self.sig.log.emit(line)
 
     def run(self) -> None:
-        """线程运行入口：按 jtype 分发到对应的工具函数。"""
+        """线程运行入口：按 jtype 分发到对应的工具函数"""
         if self.jtype in ["encode", "mux", "mux_ff", "fast_mux", "chapter", "vs"]:
             self.params['worker'] = self
 
@@ -225,7 +225,7 @@ class Runner(QThread):
 
 
 class QSig(QObject):
-    """JobQ 的信号集合。"""
+    """JobQ 的信号集合"""
     added = Signal(str)
     started = Signal(str)
     prog = Signal(str, int)
@@ -236,7 +236,7 @@ class QSig(QObject):
 
 
 class JobQ:
-    """线程安全的任务队列，支持持久化、并发控制、暂停/恢复。"""
+    """线程安全的任务队列，支持持久化、并发控制、暂停/恢复"""
 
     def __init__(self, max_run: int = 1):
         self._q: list[Job] = []
@@ -247,7 +247,7 @@ class JobQ:
         self.sig: QSig = QSig()
 
     def add(self, job: Job) -> None:
-        """添加任务到队列。"""
+        """添加任务到队列"""
         with self._lk:
             self._q.append(job)
         self.sig.added.emit(job.id)
@@ -255,7 +255,7 @@ class JobQ:
         self._save()
 
     def remove(self, jid: str) -> bool:
-        """从队列中移除指定任务。正在运行的任务会被取消。"""
+        """从队列中移除指定任务正在运行的任务会被取消"""
         stop_w = None
         changed = False
         with self._lk:
@@ -280,11 +280,11 @@ class JobQ:
         return False
 
     def move(self, jid: str, d: int) -> None:
-        """在队列中上移/下移任务。
+        """在队列中上移/下移任务
 
         Args:
-            jid: 任务 ID。
-            d: 偏移量，负值上移，正值下移。
+            jid: 任务 ID
+            d: 偏移量，负值上移，正值下移
         """
         with self._lk:
             for i, t in enumerate(self._q):
@@ -296,7 +296,7 @@ class JobQ:
         self.sig.changed.emit()
 
     def clear_done(self) -> None:
-        """清除所有已完成/失败/取消的任务。"""
+        """清除所有已完成/失败/取消的任务"""
         with self._lk:
             self._q = [t for t in self._q
                        if t.state in (JobState.WAIT, JobState.RUN, JobState.PAUSE)]
@@ -304,19 +304,19 @@ class JobQ:
         self._save()
 
     def all(self) -> list[Job]:
-        """返回队列中所有任务的副本。"""
+        """返回队列中所有任务的副本"""
         with self._lk:
             return list(self._q)
 
     def get(self, jid: str) -> Job | None:
-        """按 ID 获取任务。"""
+        """按 ID 获取任务"""
         for t in self._q:
             if t.id == jid:
                 return t
         return None
 
     def _next(self) -> None:
-        """取出下一个等待任务并启动。"""
+        """取出下一个等待任务并启动"""
         job = None
         with self._lk:
             if not self._enabled:
@@ -333,7 +333,7 @@ class JobQ:
             self._save()
 
     def _go(self, job: Job) -> None:
-        """启动一个任务的 Runner 线程并连接信号。"""
+        """启动一个任务的 Runner 线程并连接信号"""
         r = Runner(job.jtype, dict(job.params))
         self._running[job.id] = r
 
@@ -367,7 +367,7 @@ class JobQ:
         self.sig.changed.emit()
 
     def _finish(self, jid: str, ok: bool) -> None:
-        """标记任务完成并触发下一个。"""
+        """标记任务完成并触发下一个"""
         with self._lk:
             for t in self._q:
                 if t.id == jid:
@@ -386,12 +386,12 @@ class JobQ:
             self.sig.all_done.emit()
 
     def start_queue(self) -> None:
-        """启动队列调度。"""
+        """启动队列调度"""
         self._enabled = True
         self._next()
 
     def pause_all(self) -> None:
-        """暂停所有正在运行的任务。"""
+        """暂停所有正在运行的任务"""
         with self._lk:
             for jid, r in list(self._running.items()):
                 r.pause()
@@ -401,7 +401,7 @@ class JobQ:
         self.sig.changed.emit()
 
     def goon_all(self) -> None:
-        """恢复所有暂停的任务并重新启动调度。"""
+        """恢复所有暂停的任务并重新启动调度"""
         self._enabled = True
         with self._lk:
             for jid, r in list(self._running.items()):
@@ -415,7 +415,7 @@ class JobQ:
 
 
     def set_max(self, n: int) -> None:
-        """设置最大并发数（1-8）。"""
+        """设置最大并发数（1-8）"""
         self.max_run = max(1, min(n, 8))
         if self._enabled:
             self._next()
@@ -423,7 +423,7 @@ class JobQ:
 
 
     def _save(self) -> None:
-        """将未完成任务持久化到 JSON 文件。"""
+        """将未完成任务持久化到 JSON 文件"""
         try:
             items = [t.to_dict() for t in self._q
                      if t.state in (JobState.WAIT, JobState.PAUSE)]
@@ -434,7 +434,7 @@ class JobQ:
 
 
 def load_q() -> list[Job]:
-    """从持久化文件恢复未完成的任务列表。"""
+    """从持久化文件恢复未完成的任务列表"""
     if not QUEUE_FILE.exists():
         return []
     try:

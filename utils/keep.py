@@ -3,16 +3,16 @@ from dataclasses import dataclass, field
 
 @dataclass
 class EncEntry:
-    """编码器条目信息。"""
+    """编码器条目信息"""
     name: str
     desc: str = ""
     etype: str = "video"
 
 
 class FFCap:
-    """FFmpeg 编码器能力检测器。
+    """FFmpeg 编码器能力检测器
 
-    通过 ``ffmpeg -encoders`` 扫描可用的视频/音频编码器，并按 GPU 加速类型分类。
+    通过 ``ffmpeg -encoders`` 扫描可用的视频/音频编码器，并按 GPU 加速类型分类
     """
 
     def __init__(self, ff_path: str = "ffmpeg"):
@@ -23,7 +23,7 @@ class FFCap:
         self.ok: bool = False
 
     def scan(self) -> bool:
-        """执行编码器扫描。返回 True 表示扫描成功。"""
+        """执行编码器扫描，返回 True 表示扫描成功"""
         try:
             self._do_scan()
             self.ok = True
@@ -33,7 +33,7 @@ class FFCap:
             return False
 
     def _do_scan(self) -> None:
-        """内部扫描实现，解析 ffmpeg -encoders 输出。"""
+        """内部扫描实现，解析 ffmpeg -encoders 输出"""
         c_flag = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         r = subprocess.run([self.ff, "-encoders"], capture_output=True,
                            text=True, creationflags=c_flag)
@@ -57,22 +57,22 @@ class FFCap:
                     break
 
     def has(self, name: str) -> bool:
-        """检查指定编码器名称是否可用。"""
+        """检查指定编码器名称是否可用"""
         if not self.ok:
             self.scan()
         return name in self.v_encs or name in self.a_encs
 
     def list_v(self, names: list[str]) -> list[str]:
-        """从候选列表中筛选出本机可用的视频编码器名称。"""
+        """从候选列表中筛选出本机可用的视频编码器名称"""
         if not self.ok:
             self.scan()
         return [n for n in names if n in self.v_encs]
 
     def v_by_cat(self) -> dict[str, list[str]]:
-        """按类别分组返回可用的视频编码器。
+        """按类别分组返回可用的视频编码器
 
         Returns:
-            字典，键为类别名（如 "CPU 软件编码"、"NVIDIA GPU"），值为编码器名称列表。
+            字典，键为类别名（如 "CPU 软件编码"、"NVIDIA GPU"），值为编码器名称列表
         """
         if not self.ok:
             self.scan()
@@ -96,13 +96,13 @@ _ff_cap: FFCap | None = None
 
 
 def get_ffcap(ff_path: str = "ffmpeg") -> FFCap:
-    """获取 FFCap 单例，首次调用或路径变化时重新扫描。
+    """获取 FFCap 单例，首次调用或路径变化时重新扫描
 
     Args:
-        ff_path: ffmpeg 可执行文件路径。
+        ff_path: ffmpeg 可执行文件路径
 
     Returns:
-        FFCap 实例。
+        FFCap 实例
     """
     global _ff_cap
     if _ff_cap is None:

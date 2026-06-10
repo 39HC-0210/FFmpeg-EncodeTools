@@ -9,7 +9,7 @@ from ui.other.path import FilePick, PathPick, to_one, to_paths
 
 
 class FastMuxPage(BasePage):
-    """MP4 快速封装页面：视频+音频+章节快速混流为 MP4。"""
+    """MP4 快速封装页面：视频+音频+章节快速混流为 MP4"""
 
     def __init__(self) -> None:
         super().__init__("MP4快速封装", "tab_fast_mux")
@@ -80,10 +80,10 @@ class FastMuxPage(BasePage):
             self.out_pick.edit.setText(str(paths[0].with_name(f"{paths[0].stem}.mp4")))
 
     def get_job(self) -> tuple:
-        """收集快速封装任务参数。
+        """收集快速封装任务参数
 
         Returns:
-            (任务类型, 参数字典) 或 (None, 错误信息字符串)。
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
         """
         videos = to_paths(self.vid_pick.text())
         if not videos:

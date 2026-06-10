@@ -25,7 +25,7 @@ CURRENT_VERSION = "v0.9.2-pre"
 
 
 class DashCard(CardWidget):
-    """主页功能仪表板卡片，点击时发出 clicked 信号。"""
+    """主页功能仪表板卡片，点击时发出 clicked 信号"""
 
     clicked = Signal()
 
@@ -54,7 +54,7 @@ class DashCard(CardWidget):
 
 
 class BasePage(QWidget):
-    """所有功能页面的基类，提供标题和卡片布局容器。"""
+    """所有功能页面的基类，提供标题和卡片布局容器"""
 
     def __init__(self, title: str, obj_name: str, parent: QWidget | None = None, add_stretch: bool = True):
         super().__init__(parent)
@@ -75,7 +75,7 @@ class BasePage(QWidget):
 
 
 class HomePage(QWidget):
-    """主页，展示功能导航卡片和版本信息。"""
+    """主页，展示功能导航卡片和版本信息"""
 
     go = Signal(str)
 
@@ -166,7 +166,7 @@ class HomePage(QWidget):
 
 
 class SettingsPage(QWidget):
-    """系统设置页：配置工具路径和任务完成后的预设动作。"""
+    """系统设置页：配置工具路径和任务完成后的预设动作"""
 
     def __init__(self):
         super().__init__()
@@ -288,7 +288,7 @@ class SettingsPage(QWidget):
         lay.addStretch()
 
     def _choose_exe(self, edit_widget: DropEdit) -> None:
-        """弹出文件对话框选择可执行文件，支持相对路径。"""
+        """弹出文件对话框选择可执行文件，支持相对路径"""
         path, _ = QFileDialog.getOpenFileName(self, "选择程序文件", "", "可执行文件 (*.exe);;所有文件 (*.*)")
         if path:
             try:
@@ -302,7 +302,7 @@ class SettingsPage(QWidget):
             edit_widget.setText(path)
 
     def _check(self) -> None:
-        """检测各工具路径配置的有效性并弹出结果。"""
+        """检测各工具路径配置的有效性并弹出结果"""
         cfg = load_cfg()
 
         def get_status(name: str) -> str:
@@ -343,7 +343,7 @@ class SettingsPage(QWidget):
         )
 
     def _save(self) -> None:
-        """保存当前设置到配置文件。"""
+        """保存当前设置到配置文件"""
         self.cfg["ffmpeg_path"] = self.ff_in.text().strip()
         self.cfg["ffprobe_path"] = self.fp_in.text().strip()
         self.cfg["mp4box_path"] = self.mp_in.text().strip()
@@ -359,7 +359,7 @@ class SettingsPage(QWidget):
 
 
 class BaseDialog(QDialog):
-    """弹窗基类，提供无边框半透明背景和主题跟随。"""
+    """弹窗基类，提供无边框半透明背景和主题跟随"""
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -374,7 +374,7 @@ class BaseDialog(QDialog):
 
 
 class AboutDialog(BaseDialog):
-    """关于本软件弹窗。"""
+    """关于本软件弹窗"""
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -383,7 +383,7 @@ class AboutDialog(BaseDialog):
         self._theme()
 
     def _ui(self) -> None:
-        """构建关于弹窗 UI 布局。"""
+        """构建关于弹窗 UI 布局"""
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
         self.card = CardWidget()
@@ -449,7 +449,7 @@ class AboutDialog(BaseDialog):
 
 
 class ShutdownCountdownDialog(BaseDialog):
-    """关机倒计时弹窗，60 秒内可取消，超时执行 shutdown /s。"""
+    """关机倒计时弹窗，60 秒内可取消，超时执行 shutdown /s"""
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -463,7 +463,7 @@ class ShutdownCountdownDialog(BaseDialog):
         self.timer.start(1000)
 
     def _ui(self) -> None:
-        """构建关机倒计时弹窗 UI 布局。"""
+        """构建关机倒计时弹窗 UI 布局"""
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
         self.card = CardWidget()
@@ -491,7 +491,7 @@ class ShutdownCountdownDialog(BaseDialog):
         self.card.setStyleSheet(dialog_card_style())
 
     def _tick(self) -> None:
-        """倒计时每秒回调，归零后执行关机。"""
+        """倒计时每秒回调，归零后执行关机"""
         self.seconds_left -= 1
         self.desc_lbl.setText(f"所有任务已完成，系统将在 {self.seconds_left} 秒后关机。\n若要继续使用，请点击下方按钮取消关机。")
         if self.seconds_left <= 0:
@@ -500,7 +500,7 @@ class ShutdownCountdownDialog(BaseDialog):
             os.system("shutdown /s /t 0")
 
     def _cancel(self) -> None:
-        """取消关机倒计时。"""
+        """取消关机倒计时"""
         self.timer.stop()
         self.reject()
 
@@ -520,7 +520,7 @@ class ShutdownCountdownDialog(BaseDialog):
 
 
 class TaskDialog(BaseDialog):
-    """任务执行弹窗，展示实时日志、进度条与暂停/保存日志操作。"""
+    """任务执行弹窗，展示实时日志、进度条与暂停/保存日志操作"""
 
     def __init__(self, parent: QWidget, runner: "Runner"):
         from core.work import Runner
@@ -533,7 +533,7 @@ class TaskDialog(BaseDialog):
         self._theme()
 
     def _ui(self) -> None:
-        """构建任务弹窗 UI 布局。"""
+        """构建任务弹窗 UI 布局"""
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
         self.card = CardWidget()
@@ -629,7 +629,7 @@ class TaskDialog(BaseDialog):
 
 
 class ChapDialog(BaseDialog):
-    """章节编辑弹窗，提供增删改排序的章节时间/名称表格。"""
+    """章节编辑弹窗，提供增删改排序的章节时间/名称表格"""
 
     def __init__(self, parent: QWidget | None = None, data: list[dict[str, str]] | None = None):
         super().__init__(parent)

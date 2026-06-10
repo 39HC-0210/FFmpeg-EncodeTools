@@ -6,13 +6,13 @@ from utils import info, read_txt, uniq_out, warn
 
 
 def _read_ass(path: Path) -> list[str]:
-    """读取 ASS 字幕文件，提取对话文本并清洗。
+    """读取 ASS 字幕文件，提取对话文本并清洗
 
     Args:
-        path: ASS 文件路径。
+        path: ASS 文件路径
 
     Returns:
-        清洗后的对话文本行列表。
+        清洗后的对话文本行列表
     """
     try:
         text, _ = read_txt(path)
@@ -42,13 +42,13 @@ def _read_ass(path: Path) -> list[str]:
 
 
 def _read_srt(path: Path) -> list[str]:
-    """读取 SRT 字幕文件，提取对话文本并清洗。
+    """读取 SRT 字幕文件，提取对话文本并清洗
 
     Args:
-        path: SRT 文件路径。
+        path: SRT 文件路径
 
     Returns:
-        清洗后的对话文本行列表。
+        清洗后的对话文本行列表
     """
     try:
         text, _ = read_txt(path)
@@ -66,14 +66,14 @@ def _read_srt(path: Path) -> list[str]:
 
 
 def _split(lines: list[str], n: int) -> list[list[str]]:
-    """将文本行列表尽量均分为 n 份。
+    """将文本行列表尽量均分为 n 份
 
     Args:
-        lines: 文本行列表。
-        n: 目标份数。
+        lines: 文本行列表
+        n: 目标份数
 
     Returns:
-        二维列表，每个子列表为一个分片。
+        二维列表，每个子列表为一个分片
     """
     total = len(lines)
     base = math.ceil(total / n)
@@ -94,14 +94,14 @@ def clean_subs(
     out_dir: str | None = None,
     single: bool = True,
 ) -> None:
-    """清洗字幕文件（ASS/SRT），支持等分导出。
+    """清洗字幕文件（ASS/SRT），支持等分导出
 
     Args:
-        in_path: 输入字幕文件路径。
-        mode: 处理模式，"clean" 仅清洗，"split" 清洗并等分。
-        split_n: 等分份数（仅 mode="split" 时有效）。
-        out_dir: 输出目录或文件路径。
-        single: 是否为单文件模式（影响输出路径策略）。
+        in_path: 输入字幕文件路径
+        mode: 处理模式，"clean" 仅清洗，"split" 清洗并等分
+        split_n: 等分份数（仅 mode="split" 时有效）
+        out_dir: 输出目录或文件路径
+        single: 是否为单文件模式（影响输出路径策略）
     """
     ext = in_path.suffix.lower()
     if ext == '.ass':

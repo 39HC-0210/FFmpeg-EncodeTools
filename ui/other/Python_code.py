@@ -6,7 +6,7 @@ from ui.theme import DARK_BORDER, DARK_FIELD, DARK_PANEL, DARK_SELECTION, DARK_T
 
 
 class LineBar(QWidget):
-    """代码编辑器左侧行号栏。"""
+    """代码编辑器左侧行号栏"""
 
     def __init__(self, editor: "CodeBox"):
         super().__init__(editor)
@@ -20,7 +20,7 @@ class LineBar(QWidget):
 
 
 class PyHL(QSyntaxHighlighter):
-    """Python 语法高亮器。"""
+    """Python 语法高亮器"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -63,9 +63,9 @@ class PyHL(QSyntaxHighlighter):
 
 
 class CmdHL(QSyntaxHighlighter):
-    """命令行参数语法高亮器。
+    """命令行参数语法高亮器
 
-    高亮 ``--flag`` 选项、数字和字符串。
+    高亮 ``--flag`` 选项、数字和字符串
     """
 
     def __init__(self, parent=None):
@@ -93,7 +93,7 @@ class CmdHL(QSyntaxHighlighter):
 
 
 class CodeBox(QPlainTextEdit):
-    """带行号栏和 Python 语法高亮的代码编辑器。"""
+    """带行号栏和 Python 语法高亮的代码编辑器"""
 
     changed = Signal()
 
@@ -118,7 +118,7 @@ class CodeBox(QPlainTextEdit):
         self.setStyleSheet(self.STYLE)
 
     def line_bar_w(self) -> int:
-        """根据当前行数计算行号栏所需宽度。"""
+        """根据当前行数计算行号栏所需宽度"""
         n = max(1, len(str(self.blockCount())))
         return 10 + self.fontMetrics().horizontalAdvance("9") * (n + 1)
 
@@ -139,7 +139,7 @@ class CodeBox(QPlainTextEdit):
         self.bar.setGeometry(QRect(cr.left(), cr.top(), self.line_bar_w(), cr.height()))
 
     def line_bar_draw(self, event) -> None:
-        """绘制行号栏内容（行号数字）。"""
+        """绘制行号栏内容（行号数字）"""
         p = QPainter(self.bar)
         p.fillRect(event.rect(), QColor(DARK_PANEL))
 

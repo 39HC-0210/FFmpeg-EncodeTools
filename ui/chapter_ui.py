@@ -10,7 +10,7 @@ from ui.other.path import DropEdit, PathPick, to_one, to_paths
 
 
 class ChapPage(BasePage):
-    """章节封装页面：导入章节 TXT 文件或手动编辑，注入到视频。"""
+    """章节封装页面：导入章节 TXT 文件或手动编辑，注入到视频"""
 
     def __init__(self) -> None:
         super().__init__("章节封装", "tab_chapter")
@@ -72,10 +72,10 @@ class ChapPage(BasePage):
             self.lbl_cnt.setText(f"{len(self._chaps)} 行")
 
     def get_job(self) -> tuple:
-        """收集章节注入任务参数。
+        """收集章节注入任务参数
 
         Returns:
-            (任务类型, 参数字典) 或 (None, 错误信息字符串)。
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
         """
         video = to_one(self.v_in.text())
         if not video:
