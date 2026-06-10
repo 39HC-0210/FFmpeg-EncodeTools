@@ -83,9 +83,11 @@ class ChapPage(BasePage):
 
         times, names = [], []
         if self.rb_file.isChecked():
-            chapter = to_one(self.chap_in.text())
-            if chapter and Path(chapter).exists():
-                times, names = read_chap(Path(chapter))
+            chap = to_one(self.chap_in.text())
+            if chap:
+                chap_path = Path(chap)
+                if chap_path.exists():
+                    times, names = read_chap(str(chap_path))
         else:
             for item in self._chaps:
                 text = item.get("time", "")

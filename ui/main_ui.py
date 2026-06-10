@@ -48,9 +48,9 @@ class DashCard(CardWidget):
         lay.addWidget(desc_label)
         lay.addStretch()
 
-    def mousePressEvent(self, event: QMouseEvent) -> None:
+    def mousePressEvent(self, e: QMouseEvent) -> None:
         self.clicked.emit()
-        super().mousePressEvent(event)
+        super().mousePressEvent(e)
 
 
 class BasePage(QWidget):
@@ -364,8 +364,8 @@ class BaseDialog(QDialog):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._pos: QPoint | None = None
-        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         qconfig.themeChanged.connect(self._theme)
 
     def _theme(self) -> None:
@@ -522,7 +522,7 @@ class ShutdownCountdownDialog(BaseDialog):
 class TaskDialog(BaseDialog):
     """任务执行弹窗，展示实时日志、进度条与暂停/保存日志操作"""
 
-    def __init__(self, parent: QWidget, runner: "Runner"):
+    def __init__(self, parent: QWidget, runner):  # Runner imported locally below
         from core.work import Runner
         super().__init__(parent)
         self.runner = runner
@@ -716,7 +716,8 @@ class ChapDialog(BaseDialog):
             text = item.text().strip() if item else ""
             if text and not self._valid(text):
                 has_error = True
-                item.setForeground(QColor("#F44747"))
+                if item:
+                    item.setForeground(QColor("#F44747"))
         if has_error:
             QMessageBox.warning(self, "时间格式错误", "请检查章节时间。")
             return
