@@ -217,8 +217,9 @@ class EncodePage(BasePage):
     def _build_adv(self):
         for i in reversed(range(self.adv_layout.count())):
             item = self.adv_layout.itemAt(i)
-            if item and item.widget():
-                item.widget().setParent(None)
+            w = item.widget() if item else None
+            if w:
+                w.setParent(None)
         self._w.clear()
 
         enc = self._enc_name()
@@ -368,16 +369,19 @@ class EncodePage(BasePage):
         target = 0
         
         for name in ["libx264", "libx265", "libsvtav1"]:
-            if cap.has(name) and book.get(name):
-                info = book.get(name)
+            if cap.has(name) and (info := book.get(name)):
                 self.enc_box.addItem(info.show_name, userData=name)
                 if name == saved:
                     target = self.enc_box.count() - 1
                     
         if self.enc_box.count() == 0:
-            self.enc_box.addItem(book.get('libx264').show_name, userData="libx264")
-            self.enc_box.addItem(book.get('libx265').show_name, userData="libx265")
-            self.enc_box.addItem(book.get('libsvtav1').show_name, userData="libsvtav1")
+            x264 = book.get('libx264')
+            x265 = book.get('libx265')
+            av1 = book.get('libsvtav1')
+            assert x264 and x265 and av1
+            self.enc_box.addItem(x264.show_name, userData="libx264")
+            self.enc_box.addItem(x265.show_name, userData="libx265")
+            self.enc_box.addItem(av1.show_name, userData="libsvtav1")
             target = 0
             
         self.enc_box.blockSignals(False)
