@@ -347,7 +347,7 @@ def apply_theme_styles(widget: QWidget) -> None:
     """将当前主题的 QSS 样式和调色板应用到窗口及其子控件"""
     widget.setStyleSheet(DARK_QSS if isDarkTheme() else LIGHT_QSS)
     app = QApplication.instance()
-    if app:
+    if isinstance(app, QApplication):
         app.setPalette(_palette())
     polish_theme_widgets(widget)
 
