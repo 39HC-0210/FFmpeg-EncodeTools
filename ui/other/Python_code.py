@@ -1,5 +1,5 @@
 import re
-from PySide6.QtCore import Qt, QRect, QSize, Signal
+from PySide6.QtCore import QObject, Qt, QRect, QSize, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QSyntaxHighlighter, QTextCharFormat
 from PySide6.QtWidgets import QPlainTextEdit, QWidget
 from ui.theme import DARK_BORDER, DARK_FIELD, DARK_PANEL, DARK_SELECTION, DARK_TEXT, DARK_MUTED
@@ -13,7 +13,7 @@ class LineBar(QWidget):
         self.ed = editor
 
     def sizeHint(self) -> QSize:
-        return self.ed.line_bar_w()
+        return QSize(self.ed.line_bar_w(), 0)
 
     def paintEvent(self, event) -> None:
         self.ed.line_bar_draw(event)
@@ -22,8 +22,8 @@ class LineBar(QWidget):
 class PyHL(QSyntaxHighlighter):
     """Python 语法高亮器"""
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)  # pyright: ignore[reportArgumentType, reportCallIssue]
         self.rules = []
 
         kw = QTextCharFormat()
@@ -68,8 +68,8 @@ class CmdHL(QSyntaxHighlighter):
     高亮 ``--flag`` 选项、数字和字符串
     """
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)  # pyright: ignore[reportArgumentType, reportCallIssue]
         self.rules = []
 
         opt = QTextCharFormat()
