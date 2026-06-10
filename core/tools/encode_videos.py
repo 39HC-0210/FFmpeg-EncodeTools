@@ -7,8 +7,8 @@ from core.tools.encoder import EncBook
 
 def _make_vf(
     scale: str | None = None,
-    sub_path: Path | None = None,
-    font_path: Path | None = None,
+    sub_path: str | None = None,
+    font_path: str | None = None,
 ) -> str | None:
     """构建 FFmpeg -vf 滤镜参数
 
@@ -24,10 +24,10 @@ def _make_vf(
     if scale:
         parts.append(scale)
     if sub_path:
-        s = str(sub_path.resolve()).replace('\\', '/').replace(':', '\\:')
+        s = Path(sub_path).resolve().as_posix().replace(':', '\\:')
         sub_str = f"subtitles=filename='{s}'"
         if font_path:
-            f_dir = str(font_path.resolve()).replace('\\', '/').replace(':', '\\:')
+            f_dir = Path(font_path).resolve().as_posix().replace(':', '\\:')
             sub_str += f":fontsdir='{f_dir}'"
         parts.append(sub_str)
     return ','.join(parts) if parts else None
@@ -39,8 +39,8 @@ def encode(
     preset: str,
     scale: str | None = None,
     pix_fmt: str = 'yuv420p10le',
-    sub_path: Path | None = None,
-    font_path: Path | None = None,
+    sub_path: str | None = None,
+    font_path: str | None = None,
     aud_cfg: dict[str, Any] | None = None,
     out_dir: str | None = None,
     worker: Any = None,

@@ -35,7 +35,7 @@ def mux(
     if times_ms and names:
         dur = get_vdur(vp) or 999999999
         meta_f = vp.parent / f"{vp.stem}_meta.txt"
-        make_meta(times_ms, names, meta_f, total_ms=dur)
+        make_meta(times_ms, names, str(meta_f), total_ms=dur)
 
     if mode == "mp4box":
         mp4 = find_exe("mp4box") or "mp4box"
@@ -103,7 +103,7 @@ def mux_ff(
             first_path = Path(sources[0])
             meta_f = first_path.parent / f"{first_path.stem}_ffmeta.txt"
             dur = get_vdur(first_path) or 999999999
-            make_meta(times_ms, names, meta_f, total_ms=dur)
+            make_meta(times_ms, names, str(meta_f), total_ms=dur)
 
     cmd = [ff]
 

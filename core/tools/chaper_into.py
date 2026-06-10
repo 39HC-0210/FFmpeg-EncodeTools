@@ -39,7 +39,7 @@ def inject_chap(
 
     dur = get_vdur(vp) or 999999999
     meta_f = vp.parent / f"{vp.stem}_metadata.txt"
-    make_meta(times_ms, names, meta_f, total_ms=dur)
+    make_meta(times_ms, names, str(meta_f), total_ms=dur)
 
     ff = find_exe("ffmpeg") or "ffmpeg"
     cmd = [ff, '-i', str(vp), '-i', str(meta_f),

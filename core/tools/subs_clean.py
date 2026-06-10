@@ -5,7 +5,7 @@ from config.subs_rule import wash
 from utils import info, read_txt, uniq_out, warn
 
 
-def _read_ass(path: Path) -> list[str]:
+def _read_ass(path: str) -> list[str]:
     """读取 ASS 字幕文件，提取对话文本并清洗
 
     Args:
@@ -41,7 +41,7 @@ def _read_ass(path: Path) -> list[str]:
     return [c for c in cleaned if c.strip()]
 
 
-def _read_srt(path: Path) -> list[str]:
+def _read_srt(path: str) -> list[str]:
     """读取 SRT 字幕文件，提取对话文本并清洗
 
     Args:

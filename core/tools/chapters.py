@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from utils import read_txt, warn
 
 
@@ -54,7 +52,7 @@ def read_chap(chap_path: str) -> tuple[list[int], list[str]]:
 def make_meta(
     times_ms: list[int],
     names: list[str],
-    meta_path: Path,
+    meta_path: str,
     total_ms: int | None = None,
 ) -> None:
     """生成 FFmpeg FFMETADATA1 格式的章节元数据文件
