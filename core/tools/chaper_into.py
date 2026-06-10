@@ -26,12 +26,13 @@ def inject_chap(
     """
     vp = Path(v_path)
     if not out_path:
-        out_path = str(uniq_out(vp.parent, vp.stem, "_chapter.mp4"))
+        out_p = uniq_out(vp.parent, vp.stem, "_chapter.mp4")
     else:
-        out_path = Path(out_path)
-        if not out_path.suffix:
-            out_path = out_path.with_suffix(".mp4")
-        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_p = Path(out_path)
+        if not out_p.suffix:
+            out_p = out_p.with_suffix(".mp4")
+        out_p.parent.mkdir(parents=True, exist_ok=True)
+    out_path = str(out_p)
 
     if not times_ms or not names:
         warn("章节数据为空，取消任务")
