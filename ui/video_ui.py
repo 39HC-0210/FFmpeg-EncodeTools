@@ -21,6 +21,8 @@ class EncodePage(BasePage):
     def __init__(self) -> None:
         super().__init__("视频压制", "tab_encode")
         self._w = {}
+        self._crf_connected = False
+        self._pre_connected = False
         self._io()
         self._video()
         self._audio()
@@ -289,14 +291,12 @@ class EncodePage(BasePage):
                 elif p.key == "preset":
                     preset_param = p
 
-        try:
+        if self._crf_connected:
             self.crf_box.valueChanged.disconnect()
-        except Exception:
-            pass
-        try:
+            self._crf_connected = False
+        if self._pre_connected:
             self.pre_box.currentTextChanged.disconnect()
-        except Exception:
-            pass
+            self._pre_connected = False
 
         self.crf_box.blockSignals(True)
         self.pre_box.blockSignals(True)
@@ -325,6 +325,7 @@ class EncodePage(BasePage):
             self.crf_box.setValue(float(val))
             
             self.crf_box.valueChanged.connect(lambda v: set_cfg(f"v_crf_{enc}", v))
+            self._crf_connected = True
         else:
             self.crf_label.hide()
             self.crf_box.hide()
@@ -353,6 +354,7 @@ class EncodePage(BasePage):
                 set_cfg(f"v_pre_{enc}", self.pre_box.currentText())
                 
             self.pre_box.currentTextChanged.connect(lambda t: set_cfg(f"v_pre_{enc}", t))
+            self._pre_connected = True
         else:
             self.pre_label.hide()
             self.pre_box.hide()
