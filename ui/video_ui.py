@@ -16,7 +16,9 @@ from utils.keep import get_ffcap
 
 
 class EncodePage(BasePage):
-    def __init__(self):
+    """视频压制页面：编码器选择、CRF/Preset、像素格式、缩放、字幕烧入、音频重编码。"""
+
+    def __init__(self) -> None:
         super().__init__("视频压制", "tab_encode")
         self._w = {}
         self._io()
@@ -431,7 +433,12 @@ class EncodePage(BasePage):
         else:
             self.out_pick.edit.setText(str(paths[0].parent))
 
-    def get_job(self):
+    def get_job(self) -> tuple:
+        """收集当前页面的压制任务参数。
+
+        Returns:
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)。
+        """
         videos = to_paths(self.vid_pick.text())
         if not videos:
             return None, "请选择视频文件。"

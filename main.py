@@ -30,9 +30,10 @@ from utils.ffmpeg import find_exe, load_cfg
 
 
 class Win(FramelessWindow):
+    """主窗口，包含导航侧边栏、页面栈、底部操作栏和任务队列集成。"""
 
-    def __init__(self):
-        super().__init__()  #窗口界面
+    def __init__(self) -> None:
+        super().__init__()
         self.setWindowTitle("FFmpegEncodeTools")
         self.resize(1280, 900)
         self.setObjectName("MainWindow")
@@ -111,7 +112,8 @@ class Win(FramelessWindow):
         self.apply_theme()
         self.titleBar.raise_()
 
-    def eventFilter(self, w, e):  #边栏缩放动画
+    def eventFilter(self, w: QWidget, e: QEvent) -> bool:
+        """导航侧边栏伸缩时自动调整窗口宽度。"""
         if w == self.nav and e.type() == QEvent.Type.Resize:
             nw = self.nav.width()
             dw = nw - self.last_w
@@ -135,7 +137,8 @@ class Win(FramelessWindow):
             self.last_w = nw
         return super().eventFilter(w, e)
 
-    def _setup(self):
+    def _setup(self) -> None:
+        """初始化所有页面和导航项。"""
         self.home_pg = HomePage()
         self.enc_pg = EncodePage()
         self.mux_pg = MuxPage()
@@ -175,7 +178,8 @@ class Win(FramelessWindow):
         self.bot_bar.setVisible(False)
         self.home_pg.go.connect(self.go_to)
 
-    def reg_pg(self, w, icon, text, pos=NavigationItemPosition.TOP):
+    def reg_pg(self, w: QWidget, icon: FluentIcon, text: str, pos: NavigationItemPosition = NavigationItemPosition.TOP) -> None:
+        """注册一个页面到侧边导航和页面栈中。"""
         sc = QScrollArea(self)
         sc.setWidgetResizable(True)
         sc.setFrameShape(QScrollArea.Shape.NoFrame)
@@ -190,7 +194,8 @@ class Win(FramelessWindow):
             onClick=lambda: self.go_to(w.objectName()),
         )
 
-    def go_to(self, route):
+    def go_to(self, route: str) -> None:
+        """带滑动动画的页面切换。"""
         if route not in self.pg_map:
             return
 
@@ -224,10 +229,12 @@ class Win(FramelessWindow):
         self._anim.finished.connect(lambda: nw.setGraphicsEffect(None))
         self._anim.start(QAbstractAnimation.DeletionPolicy.DeleteWhenStopped)
 
-    def apply_theme(self):
+    def apply_theme(self) -> None:
+        """应用当前主题样式。"""
         apply_theme_styles(self)
 
-    def toggle_theme(self):
+    def toggle_theme(self) -> None:
+        """切换暗色/亮色主题。"""
         route = self.cur_route
         if isDarkTheme():
             setTheme(Theme.LIGHT)
@@ -239,8 +246,8 @@ class Win(FramelessWindow):
         if route in self.pg_map:
             self.nav.setCurrentItem(route)
 
-    def get_theme_ico(self):
-        # 日夜场景切换
+    def get_theme_ico(self) -> QIcon:
+        """绘制日/夜模式切换图标。"""
         pm = QPixmap(32, 32)
         pm.fill(Qt.GlobalColor.transparent)
         p = QPainter(pm)
@@ -264,7 +271,8 @@ class Win(FramelessWindow):
         p.end()
         return QIcon(pm)
 
-    def up_theme_ico(self):
+    def up_theme_ico(self) -> None:
+        """刷新侧边栏主题切换按钮的图标。"""
         wg = getattr(self.nav, "widget", None)
         if not callable(wg):
             return
@@ -272,8 +280,8 @@ class Win(FramelessWindow):
         if it and hasattr(it, "setIcon"):
             it.setIcon(self.get_theme_ico())
 
-    def run_job(self):
-        # check
+    def run_job(self) -> None:
+        """执行当前页面的任务（弹窗模式）。"""
         cur = self.stack.currentWidget()
         cur = self.pg_widgets.get(self.cur_route, cur)
         if not hasattr(cur, "get_job"):
@@ -297,16 +305,18 @@ class Win(FramelessWindow):
         self._runner.start()
         self._dlg.exec()
 
-    def on_run_done(self):
+    def on_run_done(self) -> None:
+        """单任务执行完成回调。"""
         self.run_btn.setEnabled(True)
         self.run_btn.setText("执行当前任务")
         self.post_task(is_q=False)
 
-    def on_all_done(self):
+    def on_all_done(self) -> None:
+        """队列全部完成回调。"""
         self.post_task(is_q=True)
 
-    def post_task(self, is_q=True):
-        # 完成后动作：无动作、通知、打开输出文件夹、退出软件、延时关机
+    def post_task(self, is_q: bool = True) -> None:
+        """任务完成后的预设动作（通知/打开文件夹/退出/关机）。"""
         cfg = load_cfg()
         action = cfg.get("post_task_action", "无动作")
         if action == "无动作":
@@ -364,8 +374,8 @@ class Win(FramelessWindow):
             dlg = ShutdownCountdownDialog(self)
             dlg.exec()
 
-    def add_job(self):
-        # 提交后台任务队列
+    def add_job(self) -> None:
+        """将当前页面的任务添加到后台队列。支持多文件拆分。"""
         cur = self.stack.currentWidget()
         cur = self.pg_widgets.get(self.cur_route, cur)
         if not hasattr(cur, "get_job"):

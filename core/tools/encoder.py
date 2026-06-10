@@ -1,31 +1,34 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
 class EncParam:
+    """单个编码器参数定义。"""
     key: str
     label: str
     w_type: str
     default: Any
-    rng: Optional[list] = None
-    opts: Optional[list] = None
+    rng: list | None = None
+    opts: list | None = None
     step: float = 1.0
     tip: str = ""
     ff_flag: str = ""
-    x265_key: Optional[str] = None
-    nvenc_key: Optional[str] = None
-    svtav1_key: Optional[str] = None
+    x265_key: str | None = None
+    nvenc_key: str | None = None
+    svtav1_key: str | None = None
 
 
 @dataclass
 class ParamGrp:
+    """编码器参数分组。"""
     label: str
     params: list
 
 
 @dataclass
 class EncInfo:
+    """编码器完整信息：名称、格式、参数分组等。"""
     name: str
     show_name: str
     cat: str
@@ -38,32 +41,38 @@ class EncInfo:
 
 
 class EncBook:
+    """编码器参数手册（单例）。
 
-    _one = None
+    预定义了 libx264、libx265、libsvtav1 三种编码器的参数组，
+    并通过 :meth:`build_cmd` 将用户参数转换为命令行参数。
+    """
 
-    def __new__(cls):
+    _one: "EncBook" | None = None
+
+    def __new__(cls) -> "EncBook":
         if cls._one is None:
             cls._one = super().__new__(cls)
             cls._one._dict = {}
             cls._one._load()
         return cls._one
 
-    def _load(self):
+    def _load(self) -> None:
         self._load_builtin()
 
-
-
-    def _load_builtin(self):
+    def _load_builtin(self) -> None:
+        """加载内置编码器定义。"""
         self._add_libx264()
         self._add_libx265()
         self._add_libsvtav1()
 
-    def _add(self, info):
+    def _add(self, info: EncInfo) -> None:
+        """注册一个编码器信息。"""
         self._dict[info.name] = info
 
 # 关于内置编码器参数的加载
 
-    def _add_libx264(self):
+    def _add_libx264(self) -> None:
+        """注册 libx264 编码器参数定义。"""
         self._add(EncInfo(
             name="libx264", show_name="H.264/AVC (libx264)", cat="cpu",
             groups=[
@@ -109,7 +118,8 @@ class EncBook:
             ]
         ))
 
-    def _add_libx265(self):
+    def _add_libx265(self) -> None:
+        """注册 libx265 编码器参数定义。"""
         self._add(EncInfo(
             name="libx265", show_name="H.265/HEVC (libx265)", cat="cpu",
             use_x265=True, pix_fmts=["yuv420p", "yuv420p10le", "yuv422p10le", "yuv444p10le"],
@@ -178,7 +188,8 @@ class EncBook:
             ]
         ))
 
-    def _add_libsvtav1(self):
+    def _add_libsvtav1(self) -> None:
+        """注册 libsvtav1 编码器参数定义。"""
         av1p = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13"]
         self._add(EncInfo(
             name="libsvtav1", show_name="AV1 (libsvtav1)", cat="cpu", use_svtav1=True,
@@ -206,11 +217,20 @@ class EncBook:
         ))
 
 
-    def get(self, name):
+    def get(self, name: str) -> EncInfo | None:
+        """根据编码器名称获取 EncInfo。"""
         return self._dict.get(name)
 
-    def build_cmd(self, enc_name, params):
-        # 动态构建编码参数表
+    def build_cmd(self, enc_name: str, params: dict[str, Any]) -> list[str]:
+        """根据编码器名称和用户参数动态构建命令行参数列表。
+
+        Args:
+            enc_name: 编码器内部名（如 "libx264"）。
+            params: 用户参数字典，键为 EncParam.key。
+
+        Returns:
+            FFmpeg 编码器相关命令行参数列表。
+        """
         info = self.get(enc_name)
         if not info:
             return ['-c:v', enc_name]
