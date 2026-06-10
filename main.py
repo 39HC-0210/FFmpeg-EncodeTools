@@ -2,7 +2,7 @@ import ctypes, os, sys
 from pathlib import Path
 
 from PySide6.QtCore import (
-    QAbstractAnimation, QEasingCurve, QEvent, QPoint,
+    QAbstractAnimation, QEasingCurve, QEvent, QObject, QPoint,
     QParallelAnimationGroup, QPropertyAnimation, QRectF, Qt,
 )
 from PySide6.QtGui import QBrush, QColor, QIcon, QPainter, QPen, QPixmap
@@ -112,9 +112,9 @@ class Win(FramelessWindow):
         self.apply_theme()
         self.titleBar.raise_()
 
-    def eventFilter(self, w: QWidget, e: QEvent) -> bool:
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         """导航侧边栏伸缩时自动调整窗口宽度"""
-        if w == self.nav and e.type() == QEvent.Type.Resize:
+        if watched == self.nav and event.type() == QEvent.Type.Resize:
             nw = self.nav.width()
             dw = nw - self.last_w
             mw = nw + 1066
@@ -135,7 +135,7 @@ class Win(FramelessWindow):
                     self.resize(new_w, self.height())
 
             self.last_w = nw
-        return super().eventFilter(w, e)
+        return super().eventFilter(watched, event)
 
     def _setup(self) -> None:
         """初始化所有页面和导航项"""
@@ -215,7 +215,7 @@ class Win(FramelessWindow):
         self._anim = QParallelAnimationGroup(self)
         pa = QPropertyAnimation(nw, b"pos")
         pa.setDuration(400)
-        pa.setEasingCurve(QEasingCurve.OutQuart)
+        pa.setEasingCurve(QEasingCurve.Type.OutQuart)
         pa.setStartValue(QPoint(0, 50 * d))
         pa.setEndValue(QPoint(0, 0))
         fx = QGraphicsOpacityEffect(nw)
@@ -278,7 +278,7 @@ class Win(FramelessWindow):
             return
         it = wg("theme")
         if it and hasattr(it, "setIcon"):
-            it.setIcon(self.get_theme_ico())
+            it.setIcon(self.get_theme_ico())  # pyright: ignore[reportAttributeAccessIssue]
 
     def run_job(self) -> None:
         """执行当前页面的任务（弹窗模式）"""
