@@ -347,7 +347,7 @@ class JobQ:
 
         def on_done(jid=job.id):
             w = self._running.pop(jid, None)
-            ok = w and not getattr(w, "cancelled", False) and not getattr(w, "_err", False)
+            ok = bool(w and not getattr(w, "cancelled", False) and not getattr(w, "_err", False))
             self._finish(jid, ok)
 
         def on_err(err, jid=job.id):
