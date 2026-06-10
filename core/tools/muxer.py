@@ -146,7 +146,7 @@ def mux_ff(
         vp = Path(sources[0])
         out_path = str(vp.with_suffix(f".muxed.{fmt}"))
 
-    cmd.extend(["-c", "copy", "-y", out_path])
+    cmd.extend(["-c", "copy", "-y", out_path or ""])
 
     log_cb = worker.log if worker else None
     ok = run_ff(cmd, "高级混流", 0, worker, log_cb=log_cb)
