@@ -47,7 +47,8 @@ class EncBook:
     并通过 :meth:`build_cmd` 将用户参数转换为命令行参数
     """
 
-    _one: "EncBook" | None = None
+    _one: "EncBook | None" = None
+    _dict: dict[str, "EncInfo"]
 
     def __new__(cls) -> "EncBook":
         if cls._one is None:
