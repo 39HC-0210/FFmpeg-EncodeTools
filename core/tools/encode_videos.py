@@ -41,10 +41,10 @@ def encode(
     pix_fmt: str = 'yuv420p10le',
     sub_path: Path | None = None,
     font_path: Path | None = None,
-    aud_cfg: dict[str, Any | None] = None,
+    aud_cfg: dict[str, Any] | None = None,
     out_dir: str | None = None,
     worker: Any = None,
-    ext_params: dict[str, Any | None] = None,
+    ext_params: dict[str, Any] | None = None,
 ) -> None:
     """对视频文件执行 FFmpeg 编码压制
 
