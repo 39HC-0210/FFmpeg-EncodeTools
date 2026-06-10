@@ -26,7 +26,7 @@ def inject_chap(
     """
     vp = Path(v_path)
     if not out_path:
-        out_path = uniq_out(vp.parent, vp.stem, "_chapter.mp4")
+        out_path = str(uniq_out(vp.parent, vp.stem, "_chapter.mp4"))
     else:
         out_path = Path(out_path)
         if not out_path.suffix:
