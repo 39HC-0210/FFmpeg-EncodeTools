@@ -100,12 +100,14 @@ def run_vs_cli(
                                  creationflags=c_flag, text=True, errors="replace")
         if worker:
             worker.processes = [vs_p, enc_proc]
+        assert vs_p.stdout is not None
         vs_p.stdout.close()
 
         fps_pat = re.compile(r"(\d+\.?\d*)\s+fps")
         total_f = enc_p.get("_total_frames", 0)
         frame_pat = re.compile(r"(\d+)\s+frames")
 
+        assert enc_proc.stdout is not None
         for line in enc_proc.stdout:
             if worker and worker.cancelled:
                 vs_p.terminate()
@@ -125,6 +127,7 @@ def run_vs_cli(
 
         enc_proc.wait()
         vs_p.wait()
+        assert vs_p.stderr is not None
         vs_err = vs_p.stderr.read()
         if vs_err.strip() and worker:
             worker.sig.log.emit(f"[vspipe] {vs_err.strip()}")
@@ -189,8 +192,10 @@ def run_vs_ff(
                                 creationflags=c_flag, text=True, errors="replace")
         if worker:
             worker.processes = [vs_p, ff_p]
+        assert vs_p.stdout is not None
         vs_p.stdout.close()
 
+        assert ff_p.stdout is not None
         for line in ff_p.stdout:
             if worker and worker.cancelled:
                 vs_p.terminate()
