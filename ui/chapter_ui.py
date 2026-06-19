@@ -10,7 +10,9 @@ from ui.other.path import DropEdit, PathPick, to_one, to_paths
 
 
 class ChapPage(BasePage):
-    def __init__(self):
+    """章节封装页面：导入章节 TXT 文件或手动编辑，注入到视频"""
+
+    def __init__(self) -> None:
         super().__init__("章节封装", "tab_chapter")
         self._chaps = []
 
@@ -69,16 +71,23 @@ class ChapPage(BasePage):
             self._chaps = dialog.get()
             self.lbl_cnt.setText(f"{len(self._chaps)} 行")
 
-    def get_job(self):
+    def get_job(self) -> tuple:
+        """收集章节注入任务参数
+
+        Returns:
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
+        """
         video = to_one(self.v_in.text())
         if not video:
             return None, "请选择视频文件。"
 
         times, names = [], []
         if self.rb_file.isChecked():
-            chapter = to_one(self.chap_in.text())
-            if chapter and Path(chapter).exists():
-                times, names = read_chap(Path(chapter))
+            chap = to_one(self.chap_in.text())
+            if chap:
+                chap_path = Path(chap)
+                if chap_path.exists():
+                    times, names = read_chap(str(chap_path))
         else:
             for item in self._chaps:
                 text = item.get("time", "")

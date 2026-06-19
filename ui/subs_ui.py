@@ -8,8 +8,9 @@ from ui.other.path import DropEdit, PathPick, to_paths, to_one
 
 
 class SubsPage(BasePage):
+    """字幕清洗页面：ASS/SRT 字幕清洗及等分导出"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("字幕清洗", "tab_clean")
         c = CardWidget()
         l = QVBoxLayout(c)
@@ -45,7 +46,12 @@ class SubsPage(BasePage):
         if ps and not self.out_pick.edit.text().strip():
             self.out_pick.edit.setText(str(ps[0].with_name(f"{ps[0].stem}.txt")))
 
-    def get_job(self):
+    def get_job(self) -> tuple:
+        """收集字幕清洗任务参数
+
+        Returns:
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
+        """
         subs = to_paths(self.sub_in.text())
         if not subs:
             return None, "请选择字幕文件。"

@@ -1,6 +1,7 @@
 import re
 
-def to_half(text): # 将全角字符转换为半角字符
+def to_half(text: str) -> str:
+    """将全角英数字和符号转换为半角字符"""
     table = str.maketrans({
         'Ａ': 'A', 'Ｂ': 'B', 'Ｃ': 'C', 'Ｄ': 'D', 'Ｅ': 'E', 'Ｆ': 'F', 'Ｇ': 'G', 'Ｈ': 'H', 'Ｉ': 'I', 'Ｊ': 'J',
         'Ｋ': 'K', 'Ｌ': 'L', 'Ｍ': 'M', 'Ｎ': 'N', 'Ｏ': 'O', 'Ｐ': 'P', 'Ｑ': 'Q', 'Ｒ': 'R', 'Ｓ': 'S', 'Ｔ': 'T',
@@ -374,7 +375,15 @@ for pat, repl in RULES_RAW:
     except Exception as e:
         print(f"规则载入失败: {pat} → {e}")
 
-def wash(text):
+def wash(text: str) -> str:
+    """对字幕文本执行完整清洗管线：全角转半角后逐条应用正则替换规则
+
+    Args:
+        text: 原始字幕文本
+
+    Returns:
+        清洗后的文本
+    """
     text = to_half(text)
     for pat, repl in ALL_RULES:
         try:

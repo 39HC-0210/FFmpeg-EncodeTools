@@ -1,10 +1,24 @@
+from typing import Any, Callable, Tuple
+
 from qfluentwidgets import ComboBox, SpinBox, DoubleSpinBox, CheckBox, LineEdit, BodyLabel
+
+from core.tools.encoder import EncParam
 
 
 class WidgetMaker:
+    """根据 EncParam 定义动态创建对应 Qt 控件的工厂类"""
 
     @staticmethod
-    def make(param, ro=False):
+    def make(param: EncParam, ro: bool = False) -> tuple[Any, Callable[[], Any]]:
+        """根据参数定义创建控件和取值回调
+
+        Args:
+            param: 编码器参数定义
+            ro: 是否设为只读
+
+        Returns:
+            (Qt 控件, 获取当前值的回调函数) 元组
+        """
         t = param.w_type
 
         if t == "float_spin":
@@ -55,7 +69,12 @@ class WidgetMaker:
             return w, lambda: w.text()
 
     @staticmethod
-    def make_row(param, ro=False):
+    def make_row(param: EncParam, ro: bool = False) -> tuple[BodyLabel, Any, Callable[[], Any]]:
+        """创建带标签的控件行
+
+        Returns:
+            (标签, 控件, 取值回调) 元组
+        """
         lb = BodyLabel(param.label)
         w, get = WidgetMaker.make(param, ro)
         return lb, w, get

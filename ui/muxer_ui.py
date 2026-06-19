@@ -152,11 +152,11 @@ class DragListWidget(QListWidget):
         super().__init__(parent)
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.setDragDropMode(QAbstractItemView.DragDrop)
-        self.setDefaultDropAction(Qt.MoveAction)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
+        self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.setSpacing(2)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         
         self.setStyleSheet("""
             QListWidget { background: transparent; border: none; outline: none; padding: 0px; margin: 0px; }
@@ -201,7 +201,7 @@ class DragListWidget(QListWidget):
 
         if src_row != dest_row:
             self.row_moved.emit(src_row, dest_row)
-            event.setDropAction(Qt.IgnoreAction)
+            event.setDropAction(Qt.DropAction.IgnoreAction)
             event.accept()
         else:
             event.ignore()
@@ -236,7 +236,7 @@ class TrackHeaderWidget(QWidget):
         self.lbl_ops = QLabel("操作")
         self.lbl_ops.setStyleSheet(style)
         self.lbl_ops.setFixedWidth(50)
-        self.lbl_ops.setAlignment(Qt.AlignCenter)
+        self.lbl_ops.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         lay.addWidget(self.lbl_type)
         lay.addWidget(self.lbl_codec)
@@ -246,7 +246,7 @@ class TrackHeaderWidget(QWidget):
 
     def paintEvent(self, e):
         p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
         from qfluentwidgets import isDarkTheme
         is_dark = isDarkTheme()
         c = QColor(255, 255, 255, 20) if is_dark else QColor(0, 0, 0, 15)
@@ -364,7 +364,7 @@ class TrackCardWidget(QWidget):
         
     def paintEvent(self, e):
         p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
         
         from qfluentwidgets import isDarkTheme
         is_dark = isDarkTheme()
@@ -411,8 +411,9 @@ class TrackCardWidget(QWidget):
 
 
 class MuxPage(BasePage):
+    """高级混流封装页面：多源文件、轨道选择、语言/名称元数据、MKV 字体附件"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("混流封装", "tab_mux", add_stretch=False)
         self._sources = []
         self._tracks = []
@@ -592,11 +593,11 @@ class MuxPage(BasePage):
 
     def _create_color_icon(self, color_hex, size=14):
         pm = QPixmap(size, size)
-        pm.fill(Qt.transparent)
+        pm.fill(Qt.GlobalColor.transparent)
         p = QPainter(pm)
-        p.setRenderHint(QPainter.Antialiasing)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
         p.setBrush(QColor(color_hex))
-        p.setPen(Qt.NoPen)
+        p.setPen(Qt.PenStyle.NoPen)
         p.drawRoundedRect(0, 0, size, size, 4, 4)
         p.end()
         return QIcon(pm)
@@ -740,7 +741,7 @@ class MuxPage(BasePage):
         item = self.list_trk.item(self._selected_row)
         if item:
             w = self.list_trk.itemWidget(item)
-            if w: w.lbl_name.setText(text)
+            if w: w.lbl_name.setText(text)  # pyright: ignore[reportAttributeAccessIssue]
 
     def _on_prop_lang_changed(self, idx):
         if self._selected_row < 0 or self._selected_row >= len(self._tracks): return
@@ -754,7 +755,7 @@ class MuxPage(BasePage):
         item = self.list_trk.item(self._selected_row)
         if item:
             w = self.list_trk.itemWidget(item)
-            if w: w.lbl_lang.setText(label)
+            if w: w.lbl_lang.setText(label)  # pyright: ignore[reportAttributeAccessIssue]
 
     def _on_fonts_dropped(self, paths):
         for p in paths:
@@ -793,7 +794,12 @@ class MuxPage(BasePage):
         if raw:
             self.out_edit.setText(str(Path(raw).with_suffix(suffix)))
 
-    def get_job(self):
+    def get_job(self) -> tuple:
+        """收集混流任务参数
+
+        Returns:
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
+        """
         if not self._tracks:
             return None, "请添加至少一个包含轨道的源文件。"
 

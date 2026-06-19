@@ -1,31 +1,34 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
 class EncParam:
+    """单个编码器参数定义"""
     key: str
     label: str
     w_type: str
     default: Any
-    rng: Optional[list] = None
-    opts: Optional[list] = None
+    rng: list | None = None
+    opts: list | None = None
     step: float = 1.0
     tip: str = ""
     ff_flag: str = ""
-    x265_key: Optional[str] = None
-    nvenc_key: Optional[str] = None
-    svtav1_key: Optional[str] = None
+    x265_key: str | None = None
+    nvenc_key: str | None = None
+    svtav1_key: str | None = None
 
 
 @dataclass
 class ParamGrp:
+    """编码器参数分组"""
     label: str
     params: list
 
 
 @dataclass
 class EncInfo:
+    """编码器完整信息：名称、格式、参数分组等"""
     name: str
     show_name: str
     cat: str
@@ -38,32 +41,39 @@ class EncInfo:
 
 
 class EncBook:
+    """编码器参数手册（单例）
 
-    _one = None
+    预定义了 libx264、libx265、libsvtav1 三种编码器的参数组，
+    并通过 :meth:`build_cmd` 将用户参数转换为命令行参数
+    """
 
-    def __new__(cls):
+    _one: "EncBook | None" = None
+    _dict: dict[str, "EncInfo"]
+
+    def __new__(cls) -> "EncBook":
         if cls._one is None:
             cls._one = super().__new__(cls)
             cls._one._dict = {}
             cls._one._load()
         return cls._one
 
-    def _load(self):
+    def _load(self) -> None:
         self._load_builtin()
 
-
-
-    def _load_builtin(self):
+    def _load_builtin(self) -> None:
+        """加载内置编码器定义"""
         self._add_libx264()
         self._add_libx265()
         self._add_libsvtav1()
 
-    def _add(self, info):
+    def _add(self, info: EncInfo) -> None:
+        """注册一个编码器信息"""
         self._dict[info.name] = info
 
 # 关于内置编码器参数的加载
 
-    def _add_libx264(self):
+    def _add_libx264(self) -> None:
+        """注册 libx264 编码器参数定义"""
         self._add(EncInfo(
             name="libx264", show_name="H.264/AVC (libx264)", cat="cpu",
             groups=[
@@ -109,7 +119,8 @@ class EncBook:
             ]
         ))
 
-    def _add_libx265(self):
+    def _add_libx265(self) -> None:
+        """注册 libx265 编码器参数定义"""
         self._add(EncInfo(
             name="libx265", show_name="H.265/HEVC (libx265)", cat="cpu",
             use_x265=True, pix_fmts=["yuv420p", "yuv420p10le", "yuv422p10le", "yuv444p10le"],
@@ -150,9 +161,9 @@ class EncBook:
                     EncParam("amp", "不对称运动划分 (amp)", "check", False, x265_key="amp", tip="允许非对称运动划分，默认关闭"),
                 ]),
                 ParamGrp("色度与心理视觉", [
-                    EncParam("aq_mode", "AQ模式", "combo", "2", opts=["0","1","2","3","4"],
+                    EncParam("aq_mode", "AQ 模式", "combo", "2", opts=["0","1","2","3","4"],
                              x265_key="aq-mode", tip="自适应量化模式。0=关闭 1=普通方差 2=自动方差 3=暗部优化"),
-                    EncParam("aq_strength", "AQ强度", "float_spin", 1.0, [0.0, 3.0],
+                    EncParam("aq_strength", "AQ 强度", "float_spin", 1.0, [0.0, 3.0],
                              step=0.1, x265_key="aq-strength", tip="默认 1.0"),
                     EncParam("psy_rd", "Psy-RD", "float_spin", 2.0, [0.0, 5.0],
                              step=0.1, x265_key="psy-rd", tip="心理视觉失真优化强度，默认 2.0"),
@@ -169,16 +180,17 @@ class EncBook:
                              x265_key="strong-intra-smoothing", tip="默认开启"),
                 ]),
                 ParamGrp("高级树划分", [
-                    EncParam("ctu", "CTU大小", "int_spin", 64, [16, 64], x265_key="ctu", tip="最大编码树单元，默认 64"),
+                    EncParam("ctu", "CTU 大小", "int_spin", 64, [16, 64], x265_key="ctu", tip="最大编码树单元，默认 64"),
                     EncParam("tu_intra_depth", "帧内划分深度", "int_spin", 1, [1, 4], x265_key="tu-intra-depth", tip="默认 1"),
                     EncParam("tu_inter_depth", "帧间划分深度", "int_spin", 1, [1, 4], x265_key="tu-inter-depth", tip="默认 1"),
-                    EncParam("rd", "RD级别", "int_spin", 3, [1, 6], x265_key="rd", tip="率失真决策复杂度，推荐 3~4"),
+                    EncParam("rd", "RD 级别", "int_spin", 3, [1, 6], x265_key="rd", tip="率失真决策复杂度，推荐 3~4"),
                     EncParam("rdoq_level", "RDOQ级别", "int_spin", 0, [0, 2], x265_key="rdoq-level", tip="推荐 0 或 1"),
                 ]),
             ]
         ))
 
-    def _add_libsvtav1(self):
+    def _add_libsvtav1(self) -> None:
+        """注册 libsvtav1 编码器参数定义"""
         av1p = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13"]
         self._add(EncInfo(
             name="libsvtav1", show_name="AV1 (libsvtav1)", cat="cpu", use_svtav1=True,
@@ -200,17 +212,26 @@ class EncBook:
                              svtav1_key="film-grain", tip="模拟胶片颗粒效果，0 表示关闭，推荐 0~10"),
                     EncParam("svtav1_enable_overlays", "Enable Overlays", "check", True,
                              svtav1_key="enable-overlays", tip="默认开启"),
-                    EncParam("scm", "屏幕内容优化(SCM)", "combo", "0", opts=["0","1","2"], svtav1_key="scm", tip="0=关闭 1=开启 2=自动"),
+                    EncParam("scm", "屏幕内容优化 (SCM)", "combo", "0", opts=["0","1","2"], svtav1_key="scm", tip="0=关闭 1=开启 2=自动"),
                 ]),
             ]
         ))
 
 
-    def get(self, name):
+    def get(self, name: str) -> EncInfo | None:
+        """根据编码器名称获取 EncInfo"""
         return self._dict.get(name)
 
-    def build_cmd(self, enc_name, params):
-        # 动态构建编码参数表
+    def build_cmd(self, enc_name: str, params: dict[str, Any]) -> list[str]:
+        """根据编码器名称和用户参数动态构建命令行参数列表
+
+        Args:
+            enc_name: 编码器内部名（如 "libx264"）
+            params: 用户参数字典，键为 EncParam.key
+
+        Returns:
+            FFmpeg 编码器相关命令行参数列表
+        """
         info = self.get(enc_name)
         if not info:
             return ['-c:v', enc_name]
@@ -252,5 +273,3 @@ class EncBook:
             cmd += ["-svtav1-params", s]
 
         return cmd
-
-

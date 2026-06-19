@@ -5,6 +5,7 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
@@ -26,7 +27,9 @@ from utils import load_cfg, save_cfg
 
 
 class VSPage(QWidget):
-    def __init__(self, parent=None):
+    """VapourSynth 压制页面：脚本编辑、语法检查、编码器配置、预设管理"""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("tab_vs_encode")
         self.source_path = ""
@@ -330,7 +333,12 @@ class VSPage(QWidget):
         except Exception:
             return None
 
-    def get_job(self):
+    def get_job(self) -> tuple:
+        """收集 VS 压制任务参数
+
+        Returns:
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
+        """
         code = self.ed.toPlainText().strip()
         if not code:
             return None, "请输入 VS 脚本"

@@ -1,8 +1,33 @@
 from pathlib import Path
+from typing import Any
+
 from utils import find_exe, run_ff, info, warn, get_vdur, uniq_out
 from core.tools.chapters import make_meta, read_chap
 
-def mux(v_path, a_path, out_path, mode, times_ms=None, names=None, worker=None):
+
+def mux(
+    v_path: str,
+    a_path: str | None,
+    out_path: str | None,
+    mode: str,
+    times_ms: list[int] | None = None,
+    names: list[str] | None = None,
+    worker: Any = None,
+) -> bool:
+    """简易混流封装（MP4Box 或 FFmpeg 模式）
+
+    Args:
+        v_path: 视频文件路径
+        a_path: 音频文件路径（可选）
+        out_path: 输出路径，留空自动生成
+        mode: 混流引擎，"mp4box" 或 "ffmpeg"
+        times_ms: 章节时间列表（毫秒）
+        names: 章节名称列表
+        worker: Runner 实例
+
+    Returns:
+        True 表示混流成功
+    """
     vp = Path(v_path)
     if not out_path:
         out_path = str(vp.with_suffix(".mp4"))
@@ -10,7 +35,7 @@ def mux(v_path, a_path, out_path, mode, times_ms=None, names=None, worker=None):
     if times_ms and names:
         dur = get_vdur(vp) or 999999999
         meta_f = vp.parent / f"{vp.stem}_meta.txt"
-        make_meta(times_ms, names, meta_f, total_ms=dur)
+        make_meta(times_ms, names, str(meta_f), total_ms=dur)
 
     if mode == "mp4box":
         mp4 = find_exe("mp4box") or "mp4box"
@@ -44,7 +69,31 @@ def mux(v_path, a_path, out_path, mode, times_ms=None, names=None, worker=None):
     return ok
 
 
-def mux_ff(sources, tracks, attachments=None, chap_path=None, out_path=None, fmt="mkv", worker=None):
+def mux_ff(
+    sources: list[str],
+    tracks: list[dict[str, Any]],
+    attachments: list[str] | None = None,
+    chap_path: str | None = None,
+    out_path: str | None = None,
+    fmt: str = "mkv",
+    worker: Any = None,
+) -> bool:
+    """高级多轨道混流封装（FFmpeg）
+
+    支持多源文件、多轨道、语言/标题元数据、MKV 字体附件
+
+    Args:
+        sources: 源文件路径列表
+        tracks: 轨道信息列表，每项含 src_idx, st_idx, type, name, lang
+        attachments: 字体附件文件路径列表（仅 MKV）
+        chap_path: 章节 TXT 文件路径
+        out_path: 输出路径
+        fmt: 输出容器格式，"mkv" 或 "mp4"
+        worker: Runner 实例
+
+    Returns:
+        True 表示混流成功
+    """
     ff = find_exe("ffmpeg") or "ffmpeg"
     meta_f = None
 
@@ -54,7 +103,7 @@ def mux_ff(sources, tracks, attachments=None, chap_path=None, out_path=None, fmt
             first_path = Path(sources[0])
             meta_f = first_path.parent / f"{first_path.stem}_ffmeta.txt"
             dur = get_vdur(first_path) or 999999999
-            make_meta(times_ms, names, meta_f, total_ms=dur)
+            make_meta(times_ms, names, str(meta_f), total_ms=dur)
 
     cmd = [ff]
 
@@ -97,7 +146,7 @@ def mux_ff(sources, tracks, attachments=None, chap_path=None, out_path=None, fmt
         vp = Path(sources[0])
         out_path = str(vp.with_suffix(f".muxed.{fmt}"))
 
-    cmd.extend(["-c", "copy", "-y", out_path])
+    cmd.extend(["-c", "copy", "-y", out_path or ""])
 
     log_cb = worker.log if worker else None
     ok = run_ff(cmd, "高级混流", 0, worker, log_cb=log_cb)

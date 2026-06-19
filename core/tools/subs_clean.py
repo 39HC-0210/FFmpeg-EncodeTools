@@ -1,9 +1,19 @@
 import re, math
 from pathlib import Path
+
 from config.subs_rule import wash
 from utils import info, read_txt, uniq_out, warn
 
-def _read_ass(path):
+
+def _read_ass(path: str) -> list[str]:
+    """读取 ASS 字幕文件，提取对话文本并清洗
+
+    Args:
+        path: ASS 文件路径
+
+    Returns:
+        清洗后的对话文本行列表
+    """
     try:
         text, _ = read_txt(path)
     except Exception as e:
@@ -31,7 +41,15 @@ def _read_ass(path):
     return [c for c in cleaned if c.strip()]
 
 
-def _read_srt(path):
+def _read_srt(path: str) -> list[str]:
+    """读取 SRT 字幕文件，提取对话文本并清洗
+
+    Args:
+        path: SRT 文件路径
+
+    Returns:
+        清洗后的对话文本行列表
+    """
     try:
         text, _ = read_txt(path)
     except Exception as e:
@@ -47,7 +65,16 @@ def _read_srt(path):
     return [c for c in cleaned if c.strip()]
 
 
-def _split(lines, n):
+def _split(lines: list[str], n: int) -> list[list[str]]:
+    """将文本行列表尽量均分为 n 份
+
+    Args:
+        lines: 文本行列表
+        n: 目标份数
+
+    Returns:
+        二维列表，每个子列表为一个分片
+    """
     total = len(lines)
     base = math.ceil(total / n)
     res = []
@@ -60,12 +87,27 @@ def _split(lines, n):
     return res
 
 
-def clean_subs(in_path, mode, split_n=None, out_dir=None, single=True):
+def clean_subs(
+    in_path: Path,
+    mode: str,
+    split_n: int | None = None,
+    out_dir: str | None = None,
+    single: bool = True,
+) -> None:
+    """清洗字幕文件（ASS/SRT），支持等分导出
+
+    Args:
+        in_path: 输入字幕文件路径
+        mode: 处理模式，"clean" 仅清洗，"split" 清洗并等分
+        split_n: 等分份数（仅 mode="split" 时有效）
+        out_dir: 输出目录或文件路径
+        single: 是否为单文件模式（影响输出路径策略）
+    """
     ext = in_path.suffix.lower()
     if ext == '.ass':
-        lines = _read_ass(in_path)
+        lines = _read_ass(str(in_path))
     elif ext == '.srt':
-        lines = _read_srt(in_path)
+        lines = _read_srt(str(in_path))
     else:
         warn(f"不支持的字幕格式：{ext}")
         return

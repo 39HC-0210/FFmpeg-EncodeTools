@@ -1,27 +1,29 @@
 import re
-from PySide6.QtCore import Qt, QRect, Signal
+from PySide6.QtCore import QObject, Qt, QRect, QSize, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QSyntaxHighlighter, QTextCharFormat
 from PySide6.QtWidgets import QPlainTextEdit, QWidget
 from ui.theme import DARK_BORDER, DARK_FIELD, DARK_PANEL, DARK_SELECTION, DARK_TEXT, DARK_MUTED
 
 
 class LineBar(QWidget):
+    """代码编辑器左侧行号栏"""
 
-    def __init__(self, editor):
+    def __init__(self, editor: "CodeBox"):
         super().__init__(editor)
         self.ed = editor
 
-    def sizeHint(self):
-        return self.ed.line_bar_w()
+    def sizeHint(self) -> QSize:
+        return QSize(self.ed.line_bar_w(), 0)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         self.ed.line_bar_draw(event)
 
 
 class PyHL(QSyntaxHighlighter):
+    """Python 语法高亮器"""
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)  # pyright: ignore[reportArgumentType, reportCallIssue]
         self.rules = []
 
         kw = QTextCharFormat()
@@ -54,16 +56,20 @@ class PyHL(QSyntaxHighlighter):
         vs.setForeground(QColor("#4EC9B0"))
         self.rules.append((r"\bvapoursynth\b", vs))
 
-    def highlightBlock(self, text):
+    def highlightBlock(self, text: str) -> None:
         for pat, fmt in self.rules:
             for m in re.finditer(pat, text):
                 self.setFormat(m.start(), m.end() - m.start(), fmt)
 
 
 class CmdHL(QSyntaxHighlighter):
+    """命令行参数语法高亮器
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    高亮 ``--flag`` 选项、数字和字符串
+    """
+
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)  # pyright: ignore[reportArgumentType, reportCallIssue]
         self.rules = []
 
         opt = QTextCharFormat()
@@ -80,13 +86,15 @@ class CmdHL(QSyntaxHighlighter):
         self.rules.append((r'"[^"]*"', string))
         self.rules.append((r"'[^']*'", string))
 
-    def highlightBlock(self, text):
+    def highlightBlock(self, text: str) -> None:
         for pat, fmt in self.rules:
             for m in re.finditer(pat, text):
                 self.setFormat(m.start(), m.end() - m.start(), fmt)
 
 
 class CodeBox(QPlainTextEdit):
+    """带行号栏和 Python 语法高亮的代码编辑器"""
+
     changed = Signal()
 
     STYLE = """
@@ -98,7 +106,7 @@ class CodeBox(QPlainTextEdit):
         }
     """ % (DARK_FIELD, DARK_TEXT, DARK_BORDER, DARK_SELECTION)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.bar = LineBar(self)
         self.setFont(QFont("Consolas", 11))
@@ -109,14 +117,15 @@ class CodeBox(QPlainTextEdit):
         self.textChanged.connect(self.changed.emit)
         self.setStyleSheet(self.STYLE)
 
-    def line_bar_w(self):
+    def line_bar_w(self) -> int:
+        """根据当前行数计算行号栏所需宽度"""
         n = max(1, len(str(self.blockCount())))
         return 10 + self.fontMetrics().horizontalAdvance("9") * (n + 1)
 
-    def _up_w(self):
+    def _up_w(self) -> None:
         self.setViewportMargins(self.line_bar_w(), 0, 0, 0)
 
-    def _up_area(self, rect, dy):
+    def _up_area(self, rect: QRect, dy: int) -> None:
         if dy:
             self.bar.scroll(0, dy)
         else:
@@ -124,12 +133,13 @@ class CodeBox(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self._up_w()
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
         cr = self.contentsRect()
         self.bar.setGeometry(QRect(cr.left(), cr.top(), self.line_bar_w(), cr.height()))
 
-    def line_bar_draw(self, event):
+    def line_bar_draw(self, event) -> None:
+        """绘制行号栏内容（行号数字）"""
         p = QPainter(self.bar)
         p.fillRect(event.rect(), QColor(DARK_PANEL))
 

@@ -16,9 +16,13 @@ from utils.keep import get_ffcap
 
 
 class EncodePage(BasePage):
-    def __init__(self):
+    """视频压制页面：编码器选择、CRF/Preset、像素格式、缩放、字幕烧入、音频重编码"""
+
+    def __init__(self) -> None:
         super().__init__("视频压制", "tab_encode")
         self._w = {}
+        self._crf_connected = False
+        self._pre_connected = False
         self._io()
         self._video()
         self._audio()
@@ -215,8 +219,9 @@ class EncodePage(BasePage):
     def _build_adv(self):
         for i in reversed(range(self.adv_layout.count())):
             item = self.adv_layout.itemAt(i)
-            if item and item.widget():
-                item.widget().setParent(None)
+            w = item.widget() if item else None
+            if w:
+                w.setParent(None)
         self._w.clear()
 
         enc = self._enc_name()
@@ -286,14 +291,12 @@ class EncodePage(BasePage):
                 elif p.key == "preset":
                     preset_param = p
 
-        try:
+        if self._crf_connected:
             self.crf_box.valueChanged.disconnect()
-        except Exception:
-            pass
-        try:
+            self._crf_connected = False
+        if self._pre_connected:
             self.pre_box.currentTextChanged.disconnect()
-        except Exception:
-            pass
+            self._pre_connected = False
 
         self.crf_box.blockSignals(True)
         self.pre_box.blockSignals(True)
@@ -322,6 +325,7 @@ class EncodePage(BasePage):
             self.crf_box.setValue(float(val))
             
             self.crf_box.valueChanged.connect(lambda v: set_cfg(f"v_crf_{enc}", v))
+            self._crf_connected = True
         else:
             self.crf_label.hide()
             self.crf_box.hide()
@@ -350,6 +354,7 @@ class EncodePage(BasePage):
                 set_cfg(f"v_pre_{enc}", self.pre_box.currentText())
                 
             self.pre_box.currentTextChanged.connect(lambda t: set_cfg(f"v_pre_{enc}", t))
+            self._pre_connected = True
         else:
             self.pre_label.hide()
             self.pre_box.hide()
@@ -366,16 +371,19 @@ class EncodePage(BasePage):
         target = 0
         
         for name in ["libx264", "libx265", "libsvtav1"]:
-            if cap.has(name) and book.get(name):
-                info = book.get(name)
+            if cap.has(name) and (info := book.get(name)):
                 self.enc_box.addItem(info.show_name, userData=name)
                 if name == saved:
                     target = self.enc_box.count() - 1
                     
         if self.enc_box.count() == 0:
-            self.enc_box.addItem(book.get('libx264').show_name, userData="libx264")
-            self.enc_box.addItem(book.get('libx265').show_name, userData="libx265")
-            self.enc_box.addItem(book.get('libsvtav1').show_name, userData="libsvtav1")
+            x264 = book.get('libx264')
+            x265 = book.get('libx265')
+            av1 = book.get('libsvtav1')
+            assert x264 and x265 and av1
+            self.enc_box.addItem(x264.show_name, userData="libx264")
+            self.enc_box.addItem(x265.show_name, userData="libx265")
+            self.enc_box.addItem(av1.show_name, userData="libsvtav1")
             target = 0
             
         self.enc_box.blockSignals(False)
@@ -431,7 +439,12 @@ class EncodePage(BasePage):
         else:
             self.out_pick.edit.setText(str(paths[0].parent))
 
-    def get_job(self):
+    def get_job(self) -> tuple:
+        """收集当前页面的压制任务参数
+
+        Returns:
+            (任务类型, 参数字典) 或 (None, 错误信息字符串)
+        """
         videos = to_paths(self.vid_pick.text())
         if not videos:
             return None, "请选择视频文件。"

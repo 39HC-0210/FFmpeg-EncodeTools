@@ -1,5 +1,7 @@
 import subprocess, os, re, shutil, shlex
 from pathlib import Path
+from typing import Any
+
 from utils.ffmpeg import find_exe
 
 PARAM_MAP = {
@@ -15,7 +17,15 @@ PARAM_MAP = {
 }
 
 
-def _find_vs(name):
+def _find_vs(name: str) -> str:
+    """查找 VapourSynth 工具路径，优先配置搜索，再检查常见安装位置
+
+    Args:
+        name: 工具名（如 "vspipe", "x264", "x265"）
+
+    Returns:
+        可执行文件路径，找不到则返回原始名称
+    """
     p = find_exe(name)
     if p and os.path.isfile(p):
         return p
@@ -31,8 +41,25 @@ def _find_vs(name):
     return name
 
 
-def run_vs_cli(scr, out, enc, enc_p, worker=None):
-    # 直连 vspipe 与编码器
+def run_vs_cli(
+    scr: str,
+    out: str,
+    enc: str,
+    enc_p: dict[str, Any],
+    worker: Any = None,
+) -> bool:
+    """使用 vspipe 管道直连 x264/x265 CLI 编码器
+
+    Args:
+        scr: VapourSynth 脚本文件路径
+        out: 输出文件路径
+        enc: 编码器名（"x264" 或 "x265"）
+        enc_p: 编码参数字典
+        worker: Runner 实例
+
+    Returns:
+        True 表示编码成功
+    """
     enc_exe = _find_vs(enc)
     vs_exe = _find_vs("vspipe")
 
@@ -73,12 +100,14 @@ def run_vs_cli(scr, out, enc, enc_p, worker=None):
                                  creationflags=c_flag, text=True, errors="replace")
         if worker:
             worker.processes = [vs_p, enc_proc]
+        assert vs_p.stdout is not None
         vs_p.stdout.close()
 
         fps_pat = re.compile(r"(\d+\.?\d*)\s+fps")
         total_f = enc_p.get("_total_frames", 0)
         frame_pat = re.compile(r"(\d+)\s+frames")
 
+        assert enc_proc.stdout is not None
         for line in enc_proc.stdout:
             if worker and worker.cancelled:
                 vs_p.terminate()
@@ -98,6 +127,7 @@ def run_vs_cli(scr, out, enc, enc_p, worker=None):
 
         enc_proc.wait()
         vs_p.wait()
+        assert vs_p.stderr is not None
         vs_err = vs_p.stderr.read()
         if vs_err.strip() and worker:
             worker.sig.log.emit(f"[vspipe] {vs_err.strip()}")
@@ -112,8 +142,25 @@ def run_vs_cli(scr, out, enc, enc_p, worker=None):
         return False
 
 
-def run_vs_ff(scr, out, enc, enc_p, worker=None):
-    # 直连 vspipe 与 FFmpeg
+def run_vs_ff(
+    scr: str,
+    out: str,
+    enc: str,
+    enc_p: dict[str, Any],
+    worker: Any = None,
+) -> bool:
+    """使用 vspipe 管道直连 FFmpeg 编码器
+
+    Args:
+        scr: VapourSynth 脚本文件路径
+        out: 输出文件路径
+        enc: FFmpeg 编码器名（如 "libx264", "libx265"）
+        enc_p: 编码参数字典
+        worker: Runner 实例
+
+    Returns:
+        True 表示编码成功
+    """
     ff = find_exe("ffmpeg") or "ffmpeg"
     vs_exe = _find_vs("vspipe")
 
@@ -145,8 +192,10 @@ def run_vs_ff(scr, out, enc, enc_p, worker=None):
                                 creationflags=c_flag, text=True, errors="replace")
         if worker:
             worker.processes = [vs_p, ff_p]
+        assert vs_p.stdout is not None
         vs_p.stdout.close()
 
+        assert ff_p.stdout is not None
         for line in ff_p.stdout:
             if worker and worker.cancelled:
                 vs_p.terminate()

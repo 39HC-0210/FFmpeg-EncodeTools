@@ -1,23 +1,67 @@
 from pathlib import Path
+from typing import Any
+
 from utils import uniq_out, run_ff, info, find_exe, get_vinfo
 from core.tools.encoder import EncBook
 
-def _make_vf(scale, sub_path=None, font_path=None):
-    # 设置 -vf 内的参数
+
+def _make_vf(
+    scale: str | None = None,
+    sub_path: str | None = None,
+    font_path: str | None = None,
+) -> str | None:
+    """构建 FFmpeg -vf 滤镜参数
+
+    Args:
+        scale: 缩放参数（如 "-2:1080"）
+        sub_path: 字幕文件路径
+        font_path: 字体目录路径
+
+    Returns:
+        -vf 参数字符串，无滤镜时返回 None
+    """
     parts = []
     if scale:
         parts.append(scale)
     if sub_path:
-        s = str(sub_path.resolve()).replace('\\', '/').replace(':', '\\:')
+        s = Path(sub_path).resolve().as_posix().replace(':', '\\:')
         sub_str = f"subtitles=filename='{s}'"
         if font_path:
-            f_dir = str(font_path.resolve()).replace('\\', '/').replace(':', '\\:')
+            f_dir = Path(font_path).resolve().as_posix().replace(':', '\\:')
             sub_str += f":fontsdir='{f_dir}'"
         parts.append(sub_str)
     return ','.join(parts) if parts else None
 
-def encode(vid_list, enc_name, crf, preset, scale=None, pix_fmt='yuv420p10le',
-           sub_path=None, font_path=None, aud_cfg=None, out_dir=None, worker=None, ext_params=None):
+def encode(
+    vid_list: list[Path],
+    enc_name: str,
+    crf: float,
+    preset: str,
+    scale: str | None = None,
+    pix_fmt: str = 'yuv420p10le',
+    sub_path: str | None = None,
+    font_path: str | None = None,
+    aud_cfg: dict[str, Any] | None = None,
+    out_dir: str | None = None,
+    worker: Any = None,
+    ext_params: dict[str, Any] | None = None,
+) -> None:
+    """对视频文件执行 FFmpeg 编码压制
+
+    Args:
+        vid_list: 待编码视频文件路径列表
+        enc_name: 编码器内部名（如 "libx264"）
+        crf: 恒定质量因子
+        preset: 编码速度预设
+        scale: 缩放滤镜参数
+        pix_fmt: 像素格式
+        sub_path: 烧入字幕文件路径
+        font_path: 字幕字体目录
+        aud_cfg: 音频编码配置字典
+        out_dir: 输出目录或文件路径
+        worker: Runner 实例，用于进度回调与取消
+        ext_params: 高级编码参数字典
+    """
     ff = find_exe("ffmpeg") or "ffmpeg"
     total = len(vid_list)
 
