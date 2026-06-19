@@ -1,0 +1,22 @@
+{
+    "ffmpeg_path": ".\\EncodeTools\\ffmpeg.exe",
+    "ffprobe_path": ".\\EncodeTools\\ffprobe.exe",
+    "mp4box_path": "",
+    "vspipe_path": ".\\EncodeTools\\Vapoursynth\\vspipe.exe",
+    "x265_path": ".\\EncodeTools\\x265.exe",
+    "x264_path": "",
+    "v_enc": "libx264",
+    "v_crf": 11.0,
+    "a_enabled": false,
+    "a_ok": false,
+    "a_enc": "aac",
+    "adv_ok": false,
+    "v_pre": "medium",
+    "a_sr": "保持原始采样率",
+    "if_fail": "继续处理任务并最终反馈错误清单",
+    "temp_vpy_dir": ".\\vpy\\temp",
+    "del_temp_vpy": false,
+    "enc_temp_dir": ".\\enc\\temp",
+    "del_temp_enc": false,
+    "post_task_action": "无动作"
+}
