@@ -11,8 +11,6 @@
 
 >到 0.4.7 版本结束之后，我觉得想继续拓展功能，就必须从 CLI 转向 GUI 开发。于是试着做了第一版图形界面，随后便投入了长达数月的开发。如今，GUI 版本终于趋于稳定，基础功能也打磨得差不多了。非常感谢每一位朋友对软件的测试和反馈。
 
->今后的开发计划，将向更适合字幕组的压制工具特化。
-
 
 ## 核心功能
 
@@ -66,7 +64,7 @@ FFmpegEncodeTools_GUI_Lite | 不含运行依赖 | 仅包含程序本体与必要
 ### 1. 安装 Python 依赖
 
 ```bash
-pip install PySide6 PySide6-Fluent-Widgets PySide6-Frameless-Window
+pip install PySide6 PySide6-Fluent-Widgets PySideSix-Frameless-Window
 ```
 
 ### 2. 准备外部工具依赖
